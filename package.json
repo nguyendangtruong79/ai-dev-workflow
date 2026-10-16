@@ -1,0 +1,37 @@
+{
+  "name": "@nguyendangtruong79/ai-dev-workflow",
+  "version": "0.1.0",
+  "description": "Install the AI dev workflow (requirements, planning, TDD, review, bugfix) into a Cursor or Claude Code project.",
+  "bin": {
+    "ai-dev-workflow": "bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "cursor",
+    "claude-code",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nguyendangtruong79/ai-dev-workflow.git"
+  },
+  "homepage": "https://github.com/nguyendangtruong79/ai-dev-workflow",
+  "bugs": {
+    "url": "https://github.com/nguyendangtruong79/ai-dev-workflow/issues"
+  },
+  "keywords": [
+    "claude-code",
+    "cursor",
+    "ai",
+    "workflow",
+    "tdd",
+    "agents"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}

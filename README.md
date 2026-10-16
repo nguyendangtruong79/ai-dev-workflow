@@ -1,6 +1,6 @@
 # AI Dev Workflow
 
-Workflow phát triển phần mềm với AI cho developer team: **requirement → spec → plan → TDD → review**, cùng một flow riêng để **debug bug**. Clone về, cài vào dự án bằng một lệnh, dùng được với **Cursor** hoặc **Claude Code**.
+Workflow phát triển phần mềm với AI cho developer team: **requirement → spec → plan → TDD → review**, cùng một flow riêng để **debug bug**. Cài vào dự án bằng `npx`, dùng được với **Cursor** hoặc **Claude Code**.
 
 *A structured AI software development workflow for teams. [English below](#english).*
 
@@ -45,16 +45,38 @@ Chi tiết nguồn tham khảo xem trong [CREDITS.md](CREDITS.md).
 
 ### Cài đặt vào dự án
 
-```bash
-git clone <repo-url> ai-dev-workflow
-cd ai-dev-workflow
+Đứng trong thư mục gốc của dự án:
 
-./install.sh cursor /path/to/your-project    # dùng Cursor
-./install.sh claude /path/to/your-project    # dùng Claude Code
-# thêm --force để ghi đè file đã có
+```bash
+# Claude Code
+npx github:nguyendangtruong79/ai-dev-workflow claude
+
+# Cursor
+npx github:nguyendangtruong79/ai-dev-workflow cursor
+
+# ghi đè file đã có
+npx github:nguyendangtruong79/ai-dev-workflow claude --force
 ```
 
-Bạn cũng có thể copy tay: copy `cursor/.cursor` + `cursor/context`, hoặc `claude-code/.claude` + `claude-code/context`, vào thư mục gốc của dự án.
+Sau khi package được publish lên npm, lệnh ngắn hơn:
+
+```bash
+npx @nguyendangtruong79/ai-dev-workflow claude
+```
+
+Cài cố định trong dự án (devDependency), rồi chạy lại khi workflow có bản mới:
+
+```bash
+npm install -D github:nguyendangtruong79/ai-dev-workflow
+npx ai-dev-workflow claude
+```
+
+Clone repo rồi cài vẫn được:
+
+```bash
+git clone https://github.com/nguyendangtruong79/ai-dev-workflow
+./ai-dev-workflow/install.sh claude /đường/dẫn/dự-án
+```
 
 ### Sử dụng
 
@@ -98,6 +120,7 @@ claude-code/
   .claude/rules/ai-dev-workflow.md    (Claude Code tự động load)
   .claude/skills/  .claude/agents/  .claude/commands/
   context/README.md
+package.json  bin/cli.js   # lệnh npx / npm
 install.sh
 scripts/sync-skills.sh  scripts/check-sync.sh
 ```
@@ -122,6 +145,13 @@ A team workflow for AI-assisted development with two human gates and autonomous 
 5. **Review**: automated checks, then independent `code-reviewer` (spec compliance, file placement, conventions, stack best practices, test quality) and `security-reviewer` (OWASP Top 10/ASVS, secrets, dependencies) subagents. Critical/Major findings loop back to TDD (max 3 rounds).
 6. **`/bugfix`**: reproduce with a failing test → `bug-investigator` produces ranked root-cause hypotheses → agree on the root cause with you → fix → loop tests until green → review.
 
-Install: `./install.sh cursor|claude /path/to/project [--force]`, then run `/onboard`.
+Install from the project root, then run `/onboard`:
+
+```bash
+npx github:nguyendangtruong79/ai-dev-workflow claude
+npx github:nguyendangtruong79/ai-dev-workflow cursor
+```
+
+After the package is published: `npx @nguyendangtruong79/ai-dev-workflow claude`. Add `--force` to overwrite existing files.
 
 Skills are original adaptations inspired by [obra/superpowers](https://github.com/obra/superpowers), [github/spec-kit](https://github.com/github/spec-kit), [anthropics/claude-code-security-review](https://github.com/anthropics/claude-code-security-review), and OWASP. See [CREDITS.md](CREDITS.md). License: MIT.
