@@ -47,15 +47,17 @@ Chi tiết nguồn tham khảo xem trong [CREDITS.md](CREDITS.md).
 
 Đứng trong thư mục gốc của dự án:
 
+npm 12 chặn cài từ Git nếu thiếu `--allow-git=all`:
+
 ```bash
 # Claude Code
-npx github:nguyendangtruong79/ai-dev-workflow claude
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow claude
 
 # Cursor
-npx github:nguyendangtruong79/ai-dev-workflow cursor
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow cursor
 
 # ghi đè file đã có
-npx github:nguyendangtruong79/ai-dev-workflow claude --force
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow claude --force
 ```
 
 Sau khi package được publish lên npm, lệnh ngắn hơn:
@@ -67,7 +69,7 @@ npx @nguyendangtruong79/ai-dev-workflow claude
 Cài cố định trong dự án (devDependency), rồi chạy lại khi workflow có bản mới:
 
 ```bash
-npm install -D github:nguyendangtruong79/ai-dev-workflow
+npm install -D github:nguyendangtruong79/ai-dev-workflow --allow-git=all
 npx ai-dev-workflow claude
 ```
 
@@ -148,8 +150,8 @@ A team workflow for AI-assisted development with two human gates and autonomous 
 Install from the project root, then run `/onboard`:
 
 ```bash
-npx github:nguyendangtruong79/ai-dev-workflow claude
-npx github:nguyendangtruong79/ai-dev-workflow cursor
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow claude
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow cursor
 ```
 
 After the package is published: `npx @nguyendangtruong79/ai-dev-workflow claude`. Add `--force` to overwrite existing files.

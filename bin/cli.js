@@ -14,7 +14,7 @@ function usage() {
   --force  overwrite files that already exist
 
 Examples:
-  npx @nguyendangtruong79/ai-dev-workflow claude
+  npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow claude
   npx @nguyendangtruong79/ai-dev-workflow cursor ../other-app --force
 `);
 }
