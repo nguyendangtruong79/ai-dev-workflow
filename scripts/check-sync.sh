@@ -16,9 +16,13 @@ if ! diff -r cursor/context claude-code/context; then
   status=1
 fi
 
+list_names() {
+  find "$1" -mindepth 1 -maxdepth 1 -type f -exec basename {} \; | sort
+}
+
 for kind in agents commands; do
-  a="$(cd "cursor/.cursor/$kind" && ls | sort)"
-  b="$(cd "claude-code/.claude/$kind" && ls | sort)"
+  a="$(list_names "cursor/.cursor/$kind")"
+  b="$(list_names "claude-code/.claude/$kind")"
   if [ "$a" != "$b" ]; then
     echo "ERROR: $kind file names differ between cursor/ and claude-code/" >&2
     status=1
