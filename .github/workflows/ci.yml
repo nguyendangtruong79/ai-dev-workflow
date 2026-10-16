@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ripgrep and shellcheck
+        run: sudo apt-get update && sudo apt-get install -y ripgrep shellcheck
+      - name: Shellcheck
+        run: shellcheck install.sh scripts/*.sh
+      - name: Tool folders in sync
+        run: bash scripts/check-sync.sh
+      - name: Install smoke test
+        run: |
+          c="$(mktemp -d)"; bash install.sh cursor "$c"
+          test -f "$c/.cursor/rules/ai-dev-workflow.mdc"
+          test -f "$c/.cursor/skills/tdd-loop/SKILL.md"
+          test -d "$c/context/project"
+          k="$(mktemp -d)"; bash install.sh claude "$k"
+          test -f "$k/.claude/rules/ai-dev-workflow.md"
+          test -f "$k/.claude/skills/tdd-loop/SKILL.md"
+          test -d "$k/context/project"
