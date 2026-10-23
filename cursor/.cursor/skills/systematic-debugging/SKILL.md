@@ -54,14 +54,29 @@ TEST    Run the reproduction test -> must pass. Append one-line evidence (kind "
         Run the full suite once, after the last edit that makes the reproduction test pass.
         Do not paste the log.
         If anything fails: attempts += 1; set loops.bugFixAttempts in status.json.
-        If the hypothesis is disproved, return to Phase 2.
+        If the hypothesis is disproved, record why in 02-investigation.md, then
+        ask the user to continue in a **new chat** (see Session reset below).
         If attempts == 3: STOP. Three failed fixes signal an architectural problem.
-        Present findings to the user and discuss the design before trying again.
+        Write the three attempts and options into 02-investigation.md / STATUS.md,
+        then ask the user to continue in a **new chat**.
 REVIEW  Run code-review (incl. security-review) on the fix diff.
 DONE    Fill 03-fix.md (root cause, fix, files, tests added, verification output), update STATUS.md.
 ```
 
 Also search for the **same bug pattern elsewhere** in the codebase and report other occurrences.
+
+## Session reset (keep disk, drop chat noise)
+
+Start a **new chat** when any of these happen:
+- The agreed root cause or fix direction is wrong and must change
+- `loops.bugFixAttempts` reaches 3
+- The user explicitly wants a clean context after failed attempts
+
+Keep on disk: `01-report.md`, `02-investigation.md` (including failed attempts and why), the reproduction test, `status.json`, `STATUS.md`, `ACTIVE.json`.
+
+In the new chat, resume with `/bugfix` or `/status continue <bug-id>`. Load only those artifacts and the current reproduction test. Do **not** paste prior chat logs, full command output, or reverted patches into the new session.
+
+Do **not** open a new chat after attempt 1 or 2 if the same root cause still stands and you only need the latest failure signal.
 
 ## Red flags (stop and go back to Phase 1)
 

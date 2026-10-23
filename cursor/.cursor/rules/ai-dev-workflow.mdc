@@ -19,6 +19,7 @@ This project uses a structured AI workflow. Skills live in `.cursor/skills/`, su
 - The `ai-dev-workflow` skill is the orchestrator: read it whenever starting, resuming, or transitioning phases.
 - Stop for user approval **only** at Gate 1 and Gate 2, or when a loop limit is reached. Otherwise transition automatically.
 - Loop limits: 5 TDD attempts per task, 3 review rounds, 3 failed bug-fix attempts. Escalate to the user when exceeded.
+- After a wrong root cause or 3 failed bug-fix attempts: keep artifacts on disk, continue in a **new chat** from `context/bugs/<id>/`. Do not carry failed-attempt logs into the new session.
 
 ## Context folder
 
