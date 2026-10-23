@@ -24,7 +24,7 @@ Side     BUGFIX     systematic-debugging           (any time a bug appears)
 1. **Phase 0 first.** If `context/project/` is missing or empty, run `project-onboarding` before anything else. Every later phase reads it.
 2. **Two human gates only.** Stop and wait for explicit approval after the spec (Gate 1) and after the plan (Gate 2). Between Gate 2 and DONE, proceed automatically without asking, except when a loop limit is hit or a decision is genuinely ambiguous.
 3. **Automatic transitions.** When a phase's exit criteria are met, update `STATUS.md` and immediately start the next phase. Do not ask "should I continue?".
-4. **State on disk.** Every feature lives in `context/features/<YYYYMMDD>-<slug>/`. Every bug lives in `context/bugs/<YYYYMMDD>-<slug>/`. Keep `STATUS.md` current (template: `templates/STATUS.md`).
+4. **State on disk.** Every feature lives in `context/features/<YYYYMMDD>-<slug>/`. Every bug lives in `context/bugs/<YYYYMMDD>-<slug>/`. Write both `STATUS.md` (human) and `status.json` (authority). Templates: `templates/STATUS.md`, `templates/status.json`. If they disagree, **trust `status.json`**. Point `context/ACTIVE.json` (`templates/ACTIVE.json`) at the item you are working on.
 5. **Loop limits** (escalate to the user when exceeded; never loop silently forever):
    | Loop | Limit |
    |---|---|
@@ -35,23 +35,71 @@ Side     BUGFIX     systematic-debugging           (any time a bug appears)
 7. **Never cheat a loop.** Do not weaken, skip, or delete tests to make them pass. Do not mark something done without fresh evidence (see `verification-before-completion`).
 8. **Language.** Write artifacts in English unless `context/project/conventions.md` says otherwise. Talk to the user in the user's language.
 
+## State authority
+
+`status.json` is the only source for phase, gates, hashes, loop counters, `diffBase`, and evidence. Update it on every transition, then mirror the same facts into `STATUS.md`.
+
+### Hashes
+
+```bash
+shasum -a 256 02-spec.md | awk '{print $1}'
+cat 03-plan.md 04-test-cases.md | shasum -a 256 | awk '{print $1}'
+```
+
+On Gate 1 approval, set `gates.spec` to `approved` with that sha256 and an ISO timestamp. On Gate 2 approval, do the same for `gates.plan`. A verbal "LGTM" without these fields is not approval.
+
+Before BUILD or any later phase, recompute both hashes. If either file changed after approval, set that gate back to `pending`, stop, and ask the user to approve again. Do not start or continue BUILD on a drifted hash.
+
+When entering BUILD, set `diffBase` to `git rev-parse HEAD` (or the empty tree if there is no commit yet). Review uses only `git diff <diffBase>` limited to files named in `03-plan.md` and `05-implementation-log.md`.
+
+### Active item
+
+Write `context/ACTIVE.json` when a feature or bug starts or is resumed. If more than one item has `phase` other than `DONE`, `/status continue` and `/implement` require an explicit id. Do not guess.
+
+### Evidence
+
+Append one object per verifying run. Do not copy a subagent's claim; run the command yourself and record what you observed.
+
+```json
+{
+  "at": "2026-10-23T04:00:00Z",
+  "kind": "task",
+  "id": "T-01",
+  "command": "npm test -- tests/checkout.test.ts",
+  "cwd": ".",
+  "exitCode": 0,
+  "summary": "4 passed, 0 failed"
+}
+```
+
+`kind` is `task`, `suite`, `lint`, `typecheck`, `build`, or `bug`. A task is done only when its evidence `exitCode` is 0 and the summary matches the output you just read. Evidence is stale if any file in that task changed after `at`.
+
+### Subagent fallback
+
+Try the named subagent first (`mode: "subagent"`). If it cannot be spawned, do the same checklist yourself and set `mode: "inline"`. Read-only reviewers that can run write commands, or that share the implementer's chat, are not independent: set `isolation` to `"degraded"` on that review round in `06-review.md` and say so to the user. Prefer a fresh read-only agent.
+
+### Parallelism
+
+Do not run implementation tasks in parallel. Ignore any `[P]` marks in older plans. One `tdd-implementer` at a time, then verify, then the next task.
+
 ## Resuming
 
 When asked to continue or for status:
-1. List `context/features/*/STATUS.md` and `context/bugs/*/STATUS.md`.
-2. Read the active one, report the phase, last step, and blockers in 3-5 lines.
-3. Continue from `Next action`.
+1. Read `context/ACTIVE.json`. List every `status.json` whose `phase` is not `DONE`.
+2. If the user named an id, claim it in `ACTIVE.json`. If they said "continue" and exactly one non-DONE item exists, claim that one. If several exist and they did not name an id, list them and stop.
+3. Recompute gate hashes before doing anything in BUILD or later. Report phase, gates, loop counters, last evidence line, and `Next action` from `STATUS.md` in 3-5 lines.
+4. Continue from `Next action`.
 
 ## Phase exit criteria
 
 | Phase | Exit when |
 |---|---|
 | ONBOARD | `context/project/{tech-stack,structure,conventions,commands}.md` exist and the user confirmed them |
-| REQUIRE | `02-spec.md` has no open `[NEEDS CLARIFICATION]` markers and the user approved it (Gate 1) |
-| PLAN | `03-plan.md` and `04-test-cases.md` exist, every AC maps to at least one TC, user approved (Gate 2) |
-| BUILD | every task in `03-plan.md` is checked, full test suite green, lint/typecheck clean |
-| REVIEW | `06-review.md` has zero open Critical/Major findings |
-| DONE | verification evidence recorded in `STATUS.md`, summary given to the user |
+| REQUIRE | `02-spec.md` has no open `[NEEDS CLARIFICATION]` markers and `gates.spec.state` is `approved` with a matching sha256 |
+| PLAN | `03-plan.md` and `04-test-cases.md` exist, every AC maps to at least one TC, `gates.plan` approved with a matching sha256 |
+| BUILD | every task checked, each has fresh evidence, full suite / lint / typecheck evidence is green, `diffBase` is set |
+| REVIEW | `06-review.md` has zero open Critical/Major findings, and the diff was limited to `diffBase` plus plan/log files |
+| DONE | suite evidence in `status.json` is fresh, summary given to the user |
 
 ## Final summary to the user (DONE)
 

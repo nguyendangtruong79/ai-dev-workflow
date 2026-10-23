@@ -9,7 +9,13 @@ Based on: obra/superpowers `requesting-code-review` + `receiving-code-review` (i
 
 ## Scope
 
-Review the diff of this feature only: `git diff <base>...HEAD` plus uncommitted changes (`git status`, `git diff`). Read surrounding code when needed for context.
+Review only this feature. Read `status.json` and use `diffBase`. The file set is every path named in `03-plan.md` and `05-implementation-log.md`.
+
+```bash
+git diff <diffBase> -- <those paths>
+```
+
+Also include uncommitted changes **only** when they are inside that file set. If other dirty files exist, list them and do not review them unless the user explicitly widens scope. If `diffBase` or the gate hashes are missing or drifted, stop and return to the orchestrator. Do not invent a base branch.
 
 ## Process
 
@@ -17,11 +23,11 @@ Review the diff of this feature only: `git diff <base>...HEAD` plus uncommitted 
 Run what exists in `commands.md`: full tests, lint, format check, typecheck, build. Optional if installed: `semgrep scan --config auto`, `gitleaks detect --no-git -v`, dependency audit (`npm audit`, `pip-audit`, `govulncheck`, `mvn dependency-check`...). Any failure is automatically a **Major** finding.
 
 ### 2. Independent reviewers (in parallel when subagents are available)
-Launch with fresh context (they must not rely on the implementer's reasoning), giving each the diff, `02-spec.md`, `04-test-cases.md`, and `context/project/*`:
-- `code-reviewer` subagent: dimensions A-E below.
-- `security-reviewer` subagent: follows the `security-review` skill.
+Run scanners yourself first (semgrep, gitleaks, dependency audit) and pass their output in the brief. Launch reviewers with fresh context (they must not rely on the implementer's reasoning), giving each the scoped diff, `02-spec.md`, `04-test-cases.md`, `context/project/*`, and scanner output:
+- `code-reviewer` subagent: dimensions A-E below. Read-only.
+- `security-reviewer` subagent: follows the `security-review` skill. Read-only.
 
-If subagents are unavailable, do both passes yourself, one after the other, re-reading the diff for each.
+If a subagent cannot be spawned, do that pass yourself and set `mode` to `inline`. If a reviewer can edit files or shares the implementer's conversation, record `isolation: degraded` in `06-review.md` and tell the user. A degraded review does not count as an independent pass; repeat it read-only when you can.
 
 ### 3. Review dimensions
 
@@ -64,6 +70,6 @@ Before fixing, verify each finding against the code. Reject false positives with
 
 ### 6. Loop
 - Write all findings into `06-review.md` (`templates/review.md`), with a section per round.
-- If any Critical/Major remains open: increment the review round in `STATUS.md`, go back to `tdd-loop` (fix mode), then review again (only the new diff + previously failed items).
+- If any Critical/Major remains open: increment `loops.reviewRounds` in `status.json` (and mirror `STATUS.md`), go back to `tdd-loop` (fix mode), then review again (only the new scoped diff + previously failed items).
 - Round limit: **3**. If still failing after 3 rounds, stop and present the remaining findings to the user with options.
 - When zero Critical/Major remain: Phase = DONE, run `verification-before-completion`, then give the final summary.

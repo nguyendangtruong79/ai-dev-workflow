@@ -13,7 +13,9 @@ Based on: obra/superpowers `test-driven-development` (the iron law) and `subagen
 
 ## Loop per task
 
-For each unchecked task `T-xx` in `03-plan.md`, in order (delegate a task to the `tdd-implementer` subagent if available, passing the task text, the TCs, and `context/project/*`):
+Before the first task, read `status.json`. Refuse to start unless `gates.spec` and `gates.plan` are `approved` and both hashes still match the files. Set `diffBase` if it is null.
+
+For each unchecked task `T-xx` in `03-plan.md`, **one at a time** (never in parallel, even if an old plan says `[P]`). Delegate that single task to the `tdd-implementer` subagent when it can be spawned (`mode: "subagent"`); otherwise run the same loop yourself and set `mode: "inline"`. Pass only the task text, its TCs, and `context/project/*`:
 
 ```
 attempts = 0
@@ -29,8 +31,10 @@ GREEN    Write the minimal production code to pass. No extra features.
 REFACTOR Remove duplication, improve names, follow conventions.md. Tests stay green.
 CHECK    Run the full test suite + lint + typecheck (commands.md).
          Any regression -> fix before moving on.
-RECORD   Check the task in 03-plan.md, append to 05-implementation-log.md
-         (task, files changed, test command + result, notes). Update STATUS.md.
+RECORD   Re-run the task tests and the suite yourself. Append evidence objects
+         to status.json (kind "task" and "suite") with the exit code you observed.
+         Check the task in 03-plan.md, append to 05-implementation-log.md, mirror STATUS.md.
+         Reset loops.tddAttempts to 0 before the next task.
 ```
 
 Then move straight to the next task. No confirmation needed between tasks.
@@ -38,8 +42,8 @@ Then move straight to the next task. No confirmation needed between tasks.
 ## Exit -> REVIEW
 
 When all tasks are checked:
-1. Run the full suite, lint, typecheck, build. Record the exact output summary in `STATUS.md`.
-2. Set Phase = REVIEW and **immediately start `code-review`**.
+1. Run the full suite, lint, typecheck, build. Append fresh evidence (`suite`, `lint`, `typecheck`, `build`) to `status.json`. Refuse to leave BUILD if any required command is missing from evidence or is stale.
+2. Set `phase` to `REVIEW` and **immediately start `code-review`**.
 
 ## When returning from review
 

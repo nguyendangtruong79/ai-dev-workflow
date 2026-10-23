@@ -13,7 +13,7 @@ Based on: Anthropic `claude-code-security-review` / `/security-review` (diff-foc
 2. **Map the attack surface of the diff.** List every new/changed entry point (HTTP routes, message handlers, CLI args, file uploads, webhooks, scheduled jobs) and every sink (DB queries, shell, filesystem, templates/HTML, outbound HTTP, deserialization, logs).
 3. **Trace untrusted data** from each entry point to each sink. Check validation, encoding, and authorization along the path.
 4. **Run the checklist** below.
-5. **Run tools if available:** `semgrep scan --config auto` (or `p/owasp-top-ten`), `gitleaks detect`, the stack's dependency audit. Treat tool output as leads to verify, not final findings.
+5. **Use scanner output from the orchestrator** (`semgrep`, `gitleaks`, dependency audit). You are read-only and do not re-run those tools. Treat output as leads to verify, not final findings. If the brief says a scanner was not installed, record that; do not pretend it ran.
 6. **Filter false positives** (below), then report.
 
 ## Checklist (OWASP Top 10 mapped)

@@ -62,7 +62,7 @@ Scan the draft against this taxonomy and list what is missing or vague: function
 - Fold each answer back into the spec immediately and remove the marker.
 
 ### Step 7: GATE 1
-Present a short summary: goal, scope in/out, number of ACs, key decisions, risks. Ask the user to **approve** or request changes. On approval, set `Gate 1 = approved` in `STATUS.md` and **immediately start `implementation-planning`**.
+Present a short summary: goal, scope in/out, number of ACs, key decisions, risks. Ask the user to **approve** or request changes. On approval, follow the hash procedure in `ai-dev-workflow`: set `gates.spec` to `approved` with the sha256 of `02-spec.md`, mirror it in `STATUS.md`, claim `context/ACTIVE.json`, and **immediately start `implementation-planning`**. A verbal approval without the hash is not Gate 1.
 
 ## Rules
 

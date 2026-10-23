@@ -33,13 +33,13 @@ context/features/<id>/
    - Take roughly 2-15 minutes of agent work and touch a small set of files.
    - Name the TCs they make pass and the exact files to create/modify (and their test files).
    - Follow the order: foundations (types/schemas/migrations) -> domain logic -> adapters (DB/API/UI) -> wiring -> e2e.
-   - Mark tasks that can run in parallel with `[P]` (no shared files, no dependency).
+   - Tasks run strictly one after another. Do not mark `[P]` and do not promise parallel execution.
 4. **Consistency check (spec-kit /analyze).** Before presenting, verify and fix:
    - Every AC has at least one TC; every TC belongs to a task; no task without a TC (except pure scaffolding, labeled).
    - Every new file path matches a placement rule in `structure.md`.
    - No task contradicts the spec's out-of-scope list.
    - Commands in the plan match `commands.md`.
-5. **GATE 2.** Show: design summary, task list (IDs + one-line titles), AC -> TC coverage table, risks. Ask the user to **approve** or adjust. On approval, update `STATUS.md` (Gate 2 = approved, Phase = BUILD) and **immediately start `tdd-loop`** with the first task. No further confirmation needed.
+5. **GATE 2.** Show: design summary, task list (IDs + one-line titles), AC -> TC coverage table, risks. Ask the user to **approve** or adjust. On approval, follow `ai-dev-workflow`: recompute the spec hash (stop if it drifted), set `gates.plan` to `approved` with the sha256 of `03-plan.md` + `04-test-cases.md`, set `phase` to `BUILD`, set `diffBase` to current `HEAD`, mirror `STATUS.md`, and **immediately start `tdd-loop`** with the first task. No further confirmation needed. A verbal approval without the hash is not Gate 2.
 
 ## Rules
 

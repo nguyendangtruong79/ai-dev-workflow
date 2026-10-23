@@ -17,7 +17,7 @@ Before any completion claim:
 1. Identify the command that proves the claim (from `context/project/commands.md`).
 2. Run it fully (not a subset, unless the claim is about a subset).
 3. Read the output: exit code, pass/fail counts, warnings.
-4. Only then state the claim, quoting the evidence (e.g. "`npm test` -> 148 passed, 0 failed").
+4. Append an evidence object to `status.json` (`command`, `exitCode`, `summary`, `at`) and only then state the claim, quoting that object (e.g. "`npm test` -> exit 0, 148 passed, 0 failed").
 
 | Claim | Required evidence |
 |---|---|
@@ -30,6 +30,7 @@ Before any completion claim:
 
 - "Should pass now", "probably fixed", "looks good" without a run.
 - Trusting a subagent's "success" report without checking the diff and re-running tests.
+- Treating `STATUS.md` as proof when `status.json` has no matching evidence object.
 - Claiming success from a partial run or a previous run before the last edit.
 
 If verification fails, report the actual state honestly and continue the relevant loop.

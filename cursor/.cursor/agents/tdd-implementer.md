@@ -16,6 +16,8 @@ Procedure:
 
 Never skip, weaken, or delete tests. Never place files outside `structure.md` rules. Never add scope beyond the task.
 
+You handle exactly one task per spawn. Never start the next task.
+
 Report back:
 - Status: DONE / BLOCKED
 - Files created/modified

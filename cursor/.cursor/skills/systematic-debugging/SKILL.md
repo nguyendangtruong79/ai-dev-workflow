@@ -48,10 +48,13 @@ context/bugs/<YYYYMMDD>-<slug>/
 ```
 attempts = 0
 FIX     Implement a single fix that addresses the root cause (not the symptom).
+        Delegate the code change to `tdd-implementer` when it can be spawned, with the
+        reproduction test as the failing TC. Otherwise set mode to "inline".
 TEST    Run the reproduction test -> must pass.
         Run the full suite + lint + typecheck -> must be green.
-        If anything fails: attempts += 1, analyze the new information, return to Phase 2 if the
-        hypothesis is disproved.
+        Append evidence (kind "bug" and "suite") to status.json yourself.
+        If anything fails: attempts += 1; set loops.bugFixAttempts in status.json.
+        If the hypothesis is disproved, return to Phase 2.
         If attempts == 3: STOP. Three failed fixes signal an architectural problem.
         Present findings to the user and discuss the design before trying again.
 REVIEW  Run code-review (incl. security-review) on the fix diff.

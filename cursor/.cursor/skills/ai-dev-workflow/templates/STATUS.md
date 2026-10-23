@@ -25,6 +25,9 @@
 |---|---|---|
 | Review rounds | 0 | 3 |
 | Current task TDD attempts | 0 | 5 |
+| Bug fix attempts | 0 | 3 |
+
+Machine-readable twin: `status.json` in this folder. If the two disagree, `status.json` wins.
 
 ## Next action
 

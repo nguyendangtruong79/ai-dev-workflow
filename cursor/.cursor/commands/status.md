@@ -2,4 +2,4 @@
 
 Show the workflow status.
 
-Follow the "Resuming" section of `.cursor/skills/ai-dev-workflow/SKILL.md`: list active features and bugs from `context/features/*/STATUS.md` and `context/bugs/*/STATUS.md`, with phase, gate state, loop counters, next action, and blockers. If I say "continue", resume the active item from its `Next action`.
+Follow the "Resuming" section of `.cursor/skills/ai-dev-workflow/SKILL.md`. Read `context/ACTIVE.json` and every `status.json`. Report phase, gate state (including whether hashes still match), loop counters, last evidence line, next action, and blockers. If I say "continue", resume only when a single non-DONE item exists or I named an id. Recompute gate hashes before continuing BUILD or later.

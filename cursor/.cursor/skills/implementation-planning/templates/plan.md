@@ -31,7 +31,7 @@
 
 ## 2. Tasks
 
-Legend: `[P]` = can run in parallel with adjacent `[P]` tasks.
+Run tasks in order. Do not parallelize.
 
 ### T-01: <title>
 - **Makes pass:** TC-01, TC-02
