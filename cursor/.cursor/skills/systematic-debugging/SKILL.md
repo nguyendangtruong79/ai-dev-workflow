@@ -23,7 +23,7 @@ context/bugs/<YYYYMMDD>-<slug>/
 
 ## Phase 1: Capture and reproduce
 
-1. Fill `01-report.md` with the user: expected vs actual behavior, exact steps, environment, error messages/stack traces/logs, frequency, when it started, recent changes. Ask **one question at a time**, only for what's missing.
+1. Fill `01-report.md` with the user: expected vs actual behavior, exact steps, environment, error messages/stack traces/logs, frequency, when it started, recent changes. Ask only for what is missing, and batch those questions in one message.
 2. Read the error messages and stack traces completely. Note file:line.
 3. Check recent changes: `git log -p --since=...` on suspected files, recent deploys, dependency bumps.
 4. **Reproduce with an automated failing test** at the lowest level that shows the bug (unit if possible). Place it per `structure.md`. Run it and confirm it fails for the reported reason.
@@ -50,9 +50,9 @@ attempts = 0
 FIX     Implement a single fix that addresses the root cause (not the symptom).
         Delegate the code change to `tdd-implementer` when it can be spawned, with the
         reproduction test as the failing TC. Otherwise set mode to "inline".
-TEST    Run the reproduction test -> must pass.
-        Run the full suite + lint + typecheck -> must be green.
-        Append evidence (kind "bug" and "suite") to status.json yourself.
+TEST    Run the reproduction test -> must pass. Append one-line evidence (kind "bug").
+        Run the full suite once, after the last edit that makes the reproduction test pass.
+        Do not paste the log.
         If anything fails: attempts += 1; set loops.bugFixAttempts in status.json.
         If the hypothesis is disproved, return to Phase 2.
         If attempts == 3: STOP. Three failed fixes signal an architectural problem.

@@ -58,7 +58,9 @@ Write `context/ACTIVE.json` when a feature or bug starts or is resumed. If more 
 
 ### Evidence
 
-Append one object per verifying run. Do not copy a subagent's claim; run the command yourself and record what you observed.
+Append one object per verifying run. `summary` is one line (`4 passed, 0 failed`). Do not write command logs into `status.json` or the chat.
+
+Use the tool result already in the turn. Do not run the same command twice to confirm it. A task's evidence is that task's tests. The full suite, lint, typecheck, and build run once at the end of BUILD. Before DONE, run the suite again only if code changed after that suite evidence.
 
 ```json
 {
@@ -76,7 +78,7 @@ Append one object per verifying run. Do not copy a subagent's claim; run the com
 
 ### Subagent fallback
 
-Try the named subagent first (`mode: "subagent"`). If it cannot be spawned, do the same checklist yourself and set `mode: "inline"`. Read-only reviewers that can run write commands, or that share the implementer's chat, are not independent: set `isolation` to `"degraded"` on that review round in `06-review.md` and say so to the user. Prefer a fresh read-only agent.
+Try the named subagent first (`mode: "subagent"`). If it cannot be spawned, do the same checklist yourself and set `mode: "inline"`. Read-only reviewers that can run write commands, or that share the implementer's chat, are not independent: set `isolation` to `"degraded"` on that review round in `06-review.md` and say so once. Do not launch a second review pass in the same round.
 
 ### Parallelism
 

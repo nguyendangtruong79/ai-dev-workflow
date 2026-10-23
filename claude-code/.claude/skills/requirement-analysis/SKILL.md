@@ -1,6 +1,6 @@
 ---
 name: requirement-analysis
-description: Business analysis skill that turns a raw user requirement into an approved, testable specification through a structured dialogue (one question at a time), then runs a clarification pass for ambiguities. Use when the user describes a new feature, change request, or user story, or runs /feature or /requirement.
+description: Business analysis skill that turns a raw user requirement into an approved, testable specification through a structured dialogue (independent questions batched, dependent questions asked next), then runs a clarification pass for ambiguities. Use when the user describes a new feature, change request, or user story, or runs /feature or /requirement.
 ---
 
 # Requirement Analysis (Phase 1)
@@ -28,9 +28,10 @@ context/features/<YYYYMMDD>-<slug>/
 ### Step 2: Restate
 Restate the request in 2-4 sentences: who, what, why. Ask the user to confirm or correct.
 
-### Step 3: Elicit, one question at a time
-- Ask **one question per message**. Prefer **multiple choice with a recommended option**; open questions only when options can't be enumerated.
-- Work through the dimensions below, skipping anything already clear. Stop when remaining questions would not change the design or tests.
+### Step 3: Elicit
+- Skip anything the codebase or the user already answered.
+- Put every question whose answer does not depend on another unknown into **one message**, at most 5, each with a recommended option. Send a later message only when the next question depends on an answer.
+- Stop when more questions would not change the design or the tests.
 - Log every Q&A and decision in `01-discussion.md` as you go (not at the end).
 
 | Dimension | Ask about |
@@ -58,7 +59,7 @@ Fill `templates/spec.md`. Requirements:
 
 ### Step 6: Clarification pass (spec-kit /clarify)
 Scan the draft against this taxonomy and list what is missing or vague: functional scope, data model, UX flow, non-functional qualities, integrations, edge cases, constraints/trade-offs, terminology consistency, completion signals.
-- Ask at most **5** targeted questions, one at a time, highest impact first.
+- Ask at most **5** targeted questions in total, batched the same way as Step 3, highest impact first.
 - Fold each answer back into the spec immediately and remove the marker.
 
 ### Step 7: GATE 1

@@ -9,7 +9,7 @@ You are a debugging specialist. You find root causes; you do not write fixes.
 
 Follow Phase 2 and Phase 3 (hypotheses only) of `.claude/skills/systematic-debugging/SKILL.md`.
 
-Inputs: `01-report.md`, the reproduction test and its failure output, `context/project/*`.
+Inputs: `01-report.md`, the reproduction test and its one-line failure, and `context/project/structure.md`. Do not load the rest of `context/project/` or paste logs.
 
 Procedure:
 1. Read the full error/stack trace; locate file:line.

@@ -15,7 +15,15 @@ Based on: obra/superpowers `test-driven-development` (the iron law) and `subagen
 
 Before the first task, read `status.json`. Refuse to start unless `gates.spec` and `gates.plan` are `approved` and both hashes still match the files. Set `diffBase` if it is null.
 
-For each unchecked task `T-xx` in `03-plan.md`, **one at a time** (never in parallel, even if an old plan says `[P]`). Delegate that single task to the `tdd-implementer` subagent when it can be spawned (`mode: "subagent"`); otherwise run the same loop yourself and set `mode: "inline"`. Pass only the task text, its TCs, and `context/project/*`:
+For each unchecked task `T-xx` in `03-plan.md`, **one at a time** (never in parallel, even if an old plan says `[P]`). Delegate that single task to the `tdd-implementer` subagent when it can be spawned (`mode: "subagent"`); otherwise run the same loop yourself and set `mode: "inline"`.
+
+Brief for that spawn only:
+- the `T-xx` block from `03-plan.md`
+- the matching rows from `04-test-cases.md`
+- `context/project/structure.md`
+- the one command from `commands.md` that runs a single test file
+
+Do not attach `01-discussion.md`, the rest of the spec, other tasks, or the rest of `context/project/`. Do not paste earlier test logs into the brief.
 
 ```
 attempts = 0
@@ -29,12 +37,13 @@ GREEN    Write the minimal production code to pass. No extra features.
          If attempts == 5: STOP, switch to systematic-debugging and ask the user.
          -> mark TC status "green"
 REFACTOR Remove duplication, improve names, follow conventions.md. Tests stay green.
-CHECK    Run the full test suite + lint + typecheck (commands.md).
-         Any regression -> fix before moving on.
-RECORD   Re-run the task tests and the suite yourself. Append evidence objects
-         to status.json (kind "task" and "suite") with the exit code you observed.
-         Check the task in 03-plan.md, append to 05-implementation-log.md, mirror STATUS.md.
-         Reset loops.tddAttempts to 0 before the next task.
+CHECK    Run only this task's tests. Do not run the full suite here.
+RECORD   Keep the tool result you already have. Do not run that command again.
+         Append one evidence object (kind "task"): command, exitCode, and a one-line
+         summary such as "4 passed, 0 failed". Never store or quote the log.
+         If the tool result has no exit code, run that one command once.
+         Check the task in 03-plan.md, append one line to 05-implementation-log.md,
+         mirror STATUS.md. Reset loops.tddAttempts to 0 before the next task.
 ```
 
 Then move straight to the next task. No confirmation needed between tasks.
@@ -42,12 +51,12 @@ Then move straight to the next task. No confirmation needed between tasks.
 ## Exit -> REVIEW
 
 When all tasks are checked:
-1. Run the full suite, lint, typecheck, build. Append fresh evidence (`suite`, `lint`, `typecheck`, `build`) to `status.json`. Refuse to leave BUILD if any required command is missing from evidence or is stale.
-2. Set `phase` to `REVIEW` and **immediately start `code-review`**.
+1. Run the full suite, lint, typecheck, and build once. Append one-line evidence (`suite`, `lint`, `typecheck`, `build`) to `status.json`. Refuse to leave BUILD if any of those is missing or stale.
+2. Set `phase` to `REVIEW` and **immediately start `code-review`**. Do not carry the task-by-task logs into that review.
 
 ## When returning from review
 
-Treat each Critical/Major finding as a mini-task: write or adjust a test that exposes the problem (when testable), fix, run the full suite, then mark the finding `fixed` in `06-review.md`. Return to `code-review` for the next round.
+Treat each Critical/Major finding as a mini-task: write or adjust a test that exposes the problem (when testable), fix, and run that test. Run the full suite only if this fix can affect other tests; otherwise the next review reuses the BUILD suite evidence until it is stale. Mark the finding `fixed` in `06-review.md`. Return to `code-review` with only the fix diff and the open finding ids.
 
 ## Rules
 

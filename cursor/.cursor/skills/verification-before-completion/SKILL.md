@@ -15,21 +15,21 @@ Based on: obra/superpowers `verification-before-completion`.
 
 Before any completion claim:
 1. Identify the command that proves the claim (from `context/project/commands.md`).
-2. Run it fully (not a subset, unless the claim is about a subset).
-3. Read the output: exit code, pass/fail counts, warnings.
-4. Append an evidence object to `status.json` (`command`, `exitCode`, `summary`, `at`) and only then state the claim, quoting that object (e.g. "`npm test` -> exit 0, 148 passed, 0 failed").
+2. If this turn already has that command's tool output, use it. Otherwise run it once.
+3. Read exit code and pass/fail counts. Do not paste the log into the chat or into `status.json`.
+4. Append an evidence object (`command`, `exitCode`, one-line `summary`, `at`) and only then state the claim (e.g. "`npm test` -> exit 0, 148 passed, 0 failed").
 
 | Claim | Required evidence |
 |---|---|
-| Task done | Task's tests pass + full suite green |
-| Feature done | Full suite, lint, typecheck, build all green; review has 0 Critical/Major |
-| Bug fixed | Reproduction test passes; full suite green |
+| Task done | That task's tests pass (one-line evidence) |
+| Feature done | One fresh full suite, lint, typecheck, and build are green; review has 0 Critical/Major |
+| Bug fixed | Reproduction test passes; full suite green once after the last edit |
 | Requirement met | Each AC maps to a passing TC (check `04-test-cases.md`) |
 
 ## Forbidden
 
 - "Should pass now", "probably fixed", "looks good" without a run.
-- Trusting a subagent's "success" report without checking the diff and re-running tests.
+- Trusting a prose "tests passed" when the tool result has no exit code. Do not re-run a command whose tool result is already in this turn.
 - Treating `STATUS.md` as proof when `status.json` has no matching evidence object.
 - Claiming success from a partial run or a previous run before the last edit.
 

@@ -20,14 +20,20 @@ Also include uncommitted changes **only** when they are inside that file set. If
 ## Process
 
 ### 1. Automated checks first (cheap, objective)
-Run what exists in `commands.md`: full tests, lint, format check, typecheck, build. Optional if installed: `semgrep scan --config auto`, `gitleaks detect --no-git -v`, dependency audit (`npm audit`, `pip-audit`, `govulncheck`, `mvn dependency-check`...). Any failure is automatically a **Major** finding.
+If `status.json` already has fresh `suite`, `lint`, `typecheck`, and `build` evidence and no file in the diff changed after `at`, reuse it. Otherwise run the missing commands once. Any failure is a **Major** finding.
+
+On review round 1, run `semgrep`, `gitleaks`, and the dependency audit only if installed. Keep scanner text that names a file in the diff, at most 40 lines. No hits means the brief says `no scanner hits`. Do not attach a full scanner report.
 
 ### 2. Independent reviewers (in parallel when subagents are available)
-Run scanners yourself first (semgrep, gitleaks, dependency audit) and pass their output in the brief. Launch reviewers with fresh context (they must not rely on the implementer's reasoning), giving each the scoped diff, `02-spec.md`, `04-test-cases.md`, `context/project/*`, and scanner output:
-- `code-reviewer` subagent: dimensions A-E below. Read-only.
-- `security-reviewer` subagent: follows the `security-review` skill. Read-only.
+Launch with fresh context. They must not see the implementer's reasoning or earlier test logs.
 
-If a subagent cannot be spawned, do that pass yourself and set `mode` to `inline`. If a reviewer can edit files or shares the implementer's conversation, record `isolation: degraded` in `06-review.md` and tell the user. A degraded review does not count as an independent pass; repeat it read-only when you can.
+Round 1 briefs:
+- `code-reviewer`: scoped diff, acceptance criteria from `02-spec.md`, matching rows from `04-test-cases.md`, `structure.md`, `conventions.md`.
+- `security-reviewer`: scoped diff, the security section of `tech-stack.md`, and the scanner excerpt.
+
+Round 2 and later: only the diff since the previous review round, plus the open finding ids and their one-line text. Do not resend the original feature diff, the spec, or the scanner log.
+
+If a subagent cannot be spawned, do that pass yourself and set `mode` to `inline`. If a reviewer can edit files or shares the implementer's conversation, record `isolation: degraded` and tell the user once. Do not run a second pass in the same round.
 
 ### 3. Review dimensions
 
@@ -70,6 +76,6 @@ Before fixing, verify each finding against the code. Reject false positives with
 
 ### 6. Loop
 - Write all findings into `06-review.md` (`templates/review.md`), with a section per round.
-- If any Critical/Major remains open: increment `loops.reviewRounds` in `status.json` (and mirror `STATUS.md`), go back to `tdd-loop` (fix mode), then review again (only the new scoped diff + previously failed items).
+- If any Critical/Major remains open: increment `loops.reviewRounds` in `status.json` (and mirror `STATUS.md`), go back to `tdd-loop` (fix mode), then review again with only the fix diff and the open findings.
 - Round limit: **3**. If still failing after 3 rounds, stop and present the remaining findings to the user with options.
 - When zero Critical/Major remain: Phase = DONE, run `verification-before-completion`, then give the final summary.

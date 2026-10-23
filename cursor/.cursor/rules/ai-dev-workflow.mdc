@@ -22,7 +22,7 @@ This project uses a structured AI workflow. Skills live in `.cursor/skills/`, su
 
 ## Context folder
 
-- `context/project/` - tech stack, structure/placement rules, conventions, commands. **Read before planning, coding, or reviewing.** Create via `/onboard` if missing.
+- `context/project/` holds tech stack, structure, conventions, and commands. Create it with `/onboard` if it is missing. Pass a file onward only when that step uses it.
 - `context/features/<YYYYMMDD>-<slug>/` - STATUS, discussion, spec, plan, test cases, implementation log, review.
 - `context/bugs/<YYYYMMDD>-<slug>/` - STATUS, report, investigation, fix.
 - `context/ACTIVE.json` names the single item in progress. If several are unfinished, commands require an id.
@@ -37,6 +37,6 @@ This project uses a structured AI workflow. Skills live in `.cursor/skills/`, su
 3. No bug fix without a confirmed root cause discussed with the user.
 4. New files go where `context/project/structure.md` says.
 5. No secrets or real PII in code, tests, fixtures, or logs.
-6. No completion claims without fresh command output as evidence.
-7. Ask one question at a time when clarifying; prefer multiple choice with a recommendation.
+6. No completion claims without an exit code. Evidence summaries are one line. Do not paste command logs into chat or `status.json`.
+7. Batch clarification questions that do not depend on each other. Ask the next question only when it depends on the answer. Prefer a recommended option.
 8. Write artifacts in English; talk to the user in their language.
