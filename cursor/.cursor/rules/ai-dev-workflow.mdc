@@ -10,14 +10,13 @@ This project uses a structured AI workflow. Skills live in `.cursor/skills/`, su
 ## Flow
 
 ```
-/onboard (once) -> /feature: requirement-analysis -> [GATE 1: approve spec]
-  -> implementation-planning -> [GATE 2: approve plan]
-  -> tdd-loop -> code-review + security-review -> (loop until clean) -> DONE
-/bugfix: systematic-debugging -> discuss root cause with user -> fix -> test loop -> review
+/onboard (once) -> /feature: requirement-analysis -> [GATE 1]
+  -> plan -> [GATE 2] -> BUILD -> REVIEW -> DELIVER (PR) -> DONE
+/bugfix: systematic-debugging -> root cause gate -> fix -> review -> deliver
 ```
 
 - The `ai-dev-workflow` skill is the orchestrator: read it whenever starting, resuming, or transitioning phases.
-- Stop for user approval **only** at Gate 1 and Gate 2, or when a loop limit is reached. Otherwise transition automatically.
+- Stop for user approval at Gate 1, Gate 2, risk gate (migration/API/dependency/authz/secrets), loop limits, or root-cause agreement.
 - Loop limits: 5 TDD attempts per task, 3 review rounds, 3 failed bug-fix attempts. Escalate to the user when exceeded.
 - After a wrong root cause or 3 failed bug-fix attempts: keep artifacts on disk, continue in a **new chat** from `context/bugs/<id>/`. Do not carry failed-attempt logs into the new session.
 
@@ -27,6 +26,7 @@ This project uses a structured AI workflow. Skills live in `.cursor/skills/`, su
 - `context/features/<YYYYMMDD>-<slug>/` - STATUS, discussion, spec, plan, test cases, implementation log, review.
 - `context/bugs/<YYYYMMDD>-<slug>/` - bug STATUS templates, report, investigation, fix (no feature Gate 1/2).
 - `context/workflow-version.json` - installed pack version (written by the installer).
+- `context/metrics/events.jsonl` - append-only phase/gate/loop events (no PII).
 - Features use branch `feat/<id>`; bugs use `fix/<id>`. Stay on that branch while working.
 - `context/ACTIVE.json` names the single item in progress. If several are unfinished, commands require an id.
 - Each feature and bug has `status.json` (authority: phase, gate hashes, loop counters, evidence) and `STATUS.md` (human mirror).
@@ -35,7 +35,7 @@ This project uses a structured AI workflow. Skills live in `.cursor/skills/`, su
 
 ## Non-negotiables
 
-1. No production code without a failing test first (TDD).
+1. For `workType: code`, no production code without a failing test first (TDD). For docs/infra/config, use planned checks instead of fake tests.
 2. Never weaken, skip, or delete tests to make them pass.
 3. No bug fix without a confirmed root cause discussed with the user.
 4. New files go where `context/project/structure.md` says.

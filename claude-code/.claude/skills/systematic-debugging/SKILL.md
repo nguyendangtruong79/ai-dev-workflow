@@ -65,6 +65,7 @@ TEST    Run the reproduction test -> must pass. Append one-line evidence (kind "
         Write the three attempts and options into 02-investigation.md / STATUS.md,
         then ask the user to continue in a **new chat**.
 REVIEW  Run code-review (incl. security-review) on the fix diff.
+DELIVER Run deliver-pr (PR + optional CI), then verification-before-completion.
 DONE    Fill 03-fix.md (root cause, fix, files, tests added, verification output), update STATUS.md.
 ```
 

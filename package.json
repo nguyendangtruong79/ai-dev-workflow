@@ -1,6 +1,6 @@
 {
   "name": "@nguyendangtruong79/ai-dev-workflow",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Install the AI dev workflow (requirements, planning, TDD, review, bugfix) into a Cursor or Claude Code project.",
   "bin": {
     "ai-dev-workflow": "bin/cli.js"

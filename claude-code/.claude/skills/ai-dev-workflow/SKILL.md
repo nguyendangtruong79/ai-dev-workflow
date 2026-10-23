@@ -13,16 +13,17 @@ You drive a feature from raw requirement to reviewed, tested code. Each phase ha
 Phase 0  ONBOARD    project-onboarding            (once per project)
 Phase 1  REQUIRE    requirement-analysis           -> GATE 1: user approves spec
 Phase 2  PLAN       implementation-planning        -> GATE 2: user approves plan
-Phase 3  BUILD      tdd-loop (per task)            (autonomous)
+Phase 3  BUILD      tdd-loop / work-type loop      (autonomous; risk stop if needed)
 Phase 4  REVIEW     code-review + security-review  (autonomous, loops back to BUILD)
-Phase 5  DONE       verification-before-completion
+Phase 5  DELIVER    deliver-pr                     (PR + optional CI)
+Phase 6  DONE       verification-before-completion
 Side     BUGFIX     systematic-debugging           (any time a bug appears)
 ```
 
 ## Rules
 
 1. **Phase 0 first.** If `context/project/` is missing or empty, run `project-onboarding` before anything else. Every later phase reads it.
-2. **Two human gates only.** Stop and wait for explicit approval after the spec (Gate 1) and after the plan (Gate 2). Between Gate 2 and DONE, proceed automatically without asking, except when a loop limit is hit or a decision is genuinely ambiguous.
+2. **Human gates.** Stop for approval after the spec (Gate 1) and the plan (Gate 2). Also stop for a **risk gate** during BUILD if a task introduces a migration/DDL, public API break, new runtime dependency, authz change, or secret/config change that was not already approved in the plan. Between gates, proceed automatically except when a loop limit is hit.
 3. **Automatic transitions.** When a phase's exit criteria are met, update `STATUS.md` and immediately start the next phase. Do not ask "should I continue?".
 4. **State on disk.** Every feature lives in `context/features/<YYYYMMDD>-<slug>/`. Every bug lives in `context/bugs/<YYYYMMDD>-<slug>/`. Write both human STATUS and machine `status.json`. Features use `templates/STATUS.md` + `templates/status.json`. Bugs use `templates/STATUS-bug.md` (saved as `STATUS.md`) + `templates/status-bug.json` (saved as `status.json`). If they disagree, **trust `status.json`**. Point `context/ACTIVE.json` (`templates/ACTIVE.json`) at the item you are working on.
 5. **One item, one branch.** Features use `feat/<id>`. Bugs use `fix/<id>`. Create or check out that branch when the folder is created (if the repo is a git work tree). Store the name in `status.json.branch`. Before BUILD or a bug FIX, refuse to continue if `git branch --show-current` is not that branch (ask the user to switch). Do not force-push.
@@ -40,7 +41,17 @@ Side     BUGFIX     systematic-debugging           (any time a bug appears)
 
 `status.json` is the only source for phase, gates, hashes, loop counters, `branch`, `diffBase`, and evidence. Update it on every transition, then mirror the same facts into `STATUS.md`.
 
-Features use `gates.spec` / `gates.plan`. Bugs use `gates.rootCause` only (no Gate 1/2).
+Features use `gates.spec` / `gates.plan` / optional `gates.risk`. Bugs use `gates.rootCause` only (no Gate 1/2).
+
+`workType` is set at plan time: `code` (default), `docs`, `infra`, or `config`. It chooses the BUILD verification lane (see implementation-planning and verification-before-completion).
+
+### Metrics
+
+Append one JSON line to `context/metrics/events.jsonl` on every phase enter/exit, gate result, loop increment, and verify fail. No PII, secrets, or command logs—only ids, phase, counts, and timestamps.
+
+```json
+{"at":"2026-10-23T04:00:00Z","id":"20261023-checkout","event":"phase_enter","phase":"BUILD"}
+```
 
 ### Hashes
 
@@ -102,14 +113,16 @@ When asked to continue or for status:
 | ONBOARD | `context/project/{tech-stack,structure,conventions,commands}.md` exist and the user confirmed them |
 | REQUIRE | `02-spec.md` has no open `[NEEDS CLARIFICATION]` markers and `gates.spec.state` is `approved` with a matching sha256 |
 | PLAN | `03-plan.md` and `04-test-cases.md` exist, every AC maps to at least one TC, `gates.plan` approved with a matching sha256 |
-| BUILD | every task checked, each has fresh evidence, full suite / lint / typecheck evidence is green, `diffBase` is set |
+| BUILD | every task checked with lane-appropriate evidence; for `code`, suite/lint/typecheck green; `diffBase` set; risk gate approved or `n/a` |
 | REVIEW | `06-review.md` has zero open Critical/Major findings, and the diff was limited to `diffBase` plus plan/log files |
-| DONE | suite evidence in `status.json` is fresh, summary given to the user |
+| DELIVER | `prUrl` set, or user approved local skip; CI evidence green when CI exists |
+| DONE | verification lane evidence in `status.json` is fresh, summary given to the user |
 
 ## Final summary to the user (DONE)
 
-- What was built (link to spec)
-- Test evidence (command + pass count)
+- What was built (link to spec) and `workType`
+- Verification evidence (command + pass count, or docs/infra check)
 - Review result (findings fixed / remaining minors)
+- PR URL if any
 - Files created/changed grouped by folder
 - Follow-ups or known limitations

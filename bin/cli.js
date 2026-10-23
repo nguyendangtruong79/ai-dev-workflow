@@ -152,7 +152,7 @@ for (const { file, rel } of candidates) {
 }
 
 if (!dryRun) {
-  for (const dir of ["context/project", "context/features", "context/bugs"]) {
+  for (const dir of ["context/project", "context/features", "context/bugs", "context/metrics"]) {
     fs.mkdirSync(path.join(target, dir), { recursive: true });
   }
 

@@ -24,22 +24,23 @@ context/features/<id>/
 
 ## Process
 
-1. **Technical design (short).** Components touched, new files and **their exact paths per `structure.md`**, data model/migration changes, API contracts, key decisions. Reuse existing patterns; justify any new dependency.
-2. **Test cases first.** For every `AC-xx` (and testable `NFR-xx`/`BR-xx`), derive test cases `TC-xx`:
-   - At least one happy-path and the relevant negative/edge cases per AC.
-   - Choose the level: unit (logic), integration (DB/API boundaries), e2e (critical user journeys only).
-   - Each TC states: preconditions, input, expected result, level, target test file path.
-3. **Task breakdown.** Split into tasks `T-xx` that each:
+0. **Set `workType`** in `status.json` (and mirror STATUS): `code` | `docs` | `infra` | `config`.
+   - `code`: default; TDD iron law applies.
+   - `docs`: markdown/docs only; verify with link check or explicit file checklist—no fake unit tests.
+   - `infra`: Terraform/CI/Docker/etc.; verify with `terraform plan`, policy check, or dry-run named in the plan.
+   - `config`: config/flags only; verify with schema/validate command or dry-run.
+1. **Greenfield / missing harness.** If `commands.md` has no working single-test or full-suite command (or baseline is "0 tests"), insert **T-00: Bootstrap test harness** first (scaffold runner, one smoke test, wire `commands.md`). Label it scaffolding. Gate 2 must show that T-00 will produce a runnable test command before feature TDD.
+2. **Technical design (short).** Components touched, new files and **their exact paths per `structure.md`**, data model/migration changes, API contracts, key decisions. Reuse existing patterns; justify any new dependency. Flag planned risk kinds: `migration`, `public-api`, `dependency`, `authz`, `secrets`.
+3. **Test cases / checks first.**
+   - `code`: For every `AC-xx` (and testable `NFR-xx`/`BR-xx`), derive `TC-xx` (happy + relevant negative/edge). Level: unit / integration / e2e. Each TC: preconditions, input, expected, level, test file path.
+   - `docs` / `infra` / `config`: derive check rows `CK-xx` mapped to ACs (command or checklist), not fake unit tests.
+4. **Task breakdown.** Split into tasks `T-xx` that each:
    - Take roughly 2-15 minutes of agent work and touch a small set of files.
-   - Name the TCs they make pass and the exact files to create/modify (and their test files).
-   - Follow the order: foundations (types/schemas/migrations) -> domain logic -> adapters (DB/API/UI) -> wiring -> e2e.
-   - Tasks run strictly one after another. Do not mark `[P]` and do not promise parallel execution.
-4. **Consistency check (spec-kit /analyze).** Before presenting, verify and fix:
-   - Every AC has at least one TC; every TC belongs to a task; no task without a TC (except pure scaffolding, labeled).
-   - Every new file path matches a placement rule in `structure.md`.
-   - No task contradicts the spec's out-of-scope list.
-   - Commands in the plan match `commands.md`.
-5. **GATE 2.** Show: design summary, task list (IDs + one-line titles), AC -> TC coverage table, risks. Ask the user to **approve** or adjust. On approval, follow `ai-dev-workflow`: recompute the spec hash (stop if it drifted), set `gates.plan` to `approved` with the sha256 of `03-plan.md` + `04-test-cases.md`, set `phase` to `BUILD`, set `diffBase` to current `HEAD`, mirror `STATUS.md`, and **immediately start `tdd-loop`** with the first task. No further confirmation needed. A verbal approval without the hash is not Gate 2.
+   - Name the TCs/CKs they satisfy and the exact files to create/modify.
+   - Order: T-00 if any -> foundations -> domain -> adapters -> wiring -> e2e/checks.
+   - Tasks run strictly one after another. Do not mark `[P]`.
+5. **Consistency check.** Every AC has at least one TC or CK; every TC/CK belongs to a task; paths match `structure.md`; commands match `commands.md`; out-of-scope respected.
+6. **GATE 2.** Show: `workType`, design summary, task list, coverage table, risk kinds. Ask the user to **approve** or adjust. On approval, follow `ai-dev-workflow`: recompute the spec hash (stop if drifted), set `gates.plan` approved with sha256 of plan+test-cases, set `phase` to `BUILD`, set `diffBase` to `HEAD`, mirror STATUS, append metrics `gate_plan`, and **immediately start** the BUILD loop for that `workType`.
 
 ## Rules
 

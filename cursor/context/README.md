@@ -6,6 +6,7 @@ Persistent memory for the AI dev workflow. Commit this folder so the whole team 
 context/
 ├── ACTIVE.json                  # the one feature or bug in progress
 ├── workflow-version.json        # written by the installer (pack version + tool)
+├── metrics/events.jsonl         # append-only phase/gate/loop events (no PII)
 ├── project/                     # created by /onboard - the project's rules
 │   ├── tech-stack.md
 │   ├── structure.md             # placement rules enforced by code review

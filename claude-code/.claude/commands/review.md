@@ -13,4 +13,4 @@ Use the `code-review` skill:
 3. Round 1 diffs `git diff <diffBase> -- <files in the plan and implementation log>`. Later rounds diff only the fix.
 4. Run the read-only `code-reviewer` and `security-reviewer` with the briefs in the code-review skill. If one cannot be spawned, do that pass inline and record `mode: inline`. If a reviewer is not read-only, record `isolation: degraded` once and do not repeat the pass.
 5. Triage findings, write `06-review.md`, and increment `loops.reviewRounds` only when looping back.
-6. If Critical/Major findings remain, loop back into the `tdd-loop` skill to fix them, then re-review the fix only (max 3 rounds). For ad-hoc reviews, present findings and ask whether to fix.
+6. If Critical/Major findings remain, loop back into the `tdd-loop` skill to fix them, then re-review the fix only (max 3 rounds). When clean, continue into `deliver-pr`. For ad-hoc reviews, present findings and ask whether to fix.

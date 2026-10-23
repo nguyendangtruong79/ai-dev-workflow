@@ -21,10 +21,12 @@ Before any completion claim:
 
 | Claim | Required evidence |
 |---|---|
-| Task done | That task's tests pass (one-line evidence) |
-| Feature done | One fresh full suite, lint, typecheck, and build are green; review has 0 Critical/Major |
+| Task done (`code`) | That task's tests pass (one-line evidence) |
+| Task done (non-code) | Planned `CK-xx` check passes (one-line evidence) |
+| Feature done (`code`) | Fresh suite + lint + typecheck + build green; review clean; DELIVER done or skipped with user OK |
+| Feature done (`docs`/`infra`/`config`) | Final plan checks green; review clean; DELIVER done or skipped with user OK |
 | Bug fixed | Reproduction test passes; full suite green once after the last edit |
-| Requirement met | Each AC maps to a passing TC (check `04-test-cases.md`) |
+| Requirement met | Each AC maps to a passing TC or CK |
 
 ## Forbidden
 

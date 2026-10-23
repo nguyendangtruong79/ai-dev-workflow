@@ -9,4 +9,4 @@ Follow `.cursor/skills/systematic-debugging/SKILL.md`:
 4. Discuss the root cause and fix options with me, wait for my agreement, then set `gates.rootCause` to `approved` in `status.json`.
 5. Fix via `tdd-implementer` when possible. Run the reproduction test on each attempt, and the full suite once after it passes. Increment `loops.bugFixAttempts` on each failed fix (max 3, then escalate).
 6. If the root cause changes or attempts hit 3: write the outcome to disk, then ask me to continue in a **new chat** from `context/bugs/<id>/` (do not carry failed-attempt chat logs).
-7. Run `/review` on the fix, record `03-fix.md`, and update `status.json` plus `STATUS.md`.
+7. Run `/review` on the fix, then `/deliver`, record `03-fix.md`, and update `status.json` plus `STATUS.md`.

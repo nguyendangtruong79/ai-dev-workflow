@@ -15,6 +15,12 @@ Based on: obra/superpowers `test-driven-development` (the iron law) and `subagen
 
 Before the first task, read `status.json`. Refuse to start unless `gates.spec` and `gates.plan` are `approved` and both hashes still match the files. Refuse if `git branch --show-current` is not `status.json.branch` (ask the user to switch). Set `diffBase` if it is null.
 
+If `workType` is `docs`, `infra`, or `config`, follow **Non-code BUILD lane** below instead of the RED/GREEN iron law.
+
+### Risk gate (during BUILD)
+
+Before starting a task that adds or changes any of: DB migration/DDL, breaking public API, new runtime dependency, authz rules, secrets/config handling—and that risk was not already listed and approved in the plan—**stop**. Set `gates.risk` to `pending` with `kinds: [...]`, explain blast radius in one short message, and wait for user approval. On approval set `gates.risk.state` to `approved` and continue. Do not silently expand scope.
+
 For each unchecked task `T-xx` in `03-plan.md`, **one at a time** (never in parallel, even if an old plan says `[P]`). Delegate that single task to the `tdd-implementer` subagent when it can be spawned (`mode: "subagent"`); otherwise run the same loop yourself and set `mode: "inline"`.
 
 Brief for that spawn only:
@@ -50,9 +56,14 @@ Then move straight to the next task. No confirmation needed between tasks.
 
 ## Exit -> REVIEW
 
+### Non-code BUILD lane
+
+For `docs` / `infra` / `config`: each task implements the planned change, then runs the planned `CK-xx` verify command (or checklist). Append evidence `kind: "check"`. No failing unit test is required. Do not invent fake tests to satisfy TDD.
+
 When all tasks are checked:
-1. Run the full suite, lint, typecheck, and build once. Append one-line evidence (`suite`, `lint`, `typecheck`, `build`) to `status.json`. Refuse to leave BUILD if any of those is missing or stale.
-2. Set `phase` to `REVIEW` and **immediately start `code-review`**. Do not carry the task-by-task logs into that review.
+1. **code:** Run the full suite, lint, typecheck, and build once. Append one-line evidence. Refuse to leave BUILD if any is missing or stale.
+2. **non-code:** Run the final checks named in the plan once. Append `check` evidence.
+3. Set `phase` to `REVIEW` and **immediately start `code-review`** (for non-code, review still checks placement/scope; security-review only if secrets/infra auth surface changed). Do not carry task logs into review.
 
 ## When returning from review
 

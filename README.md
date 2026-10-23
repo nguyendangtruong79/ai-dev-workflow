@@ -68,7 +68,7 @@ Installer ghi `context/workflow-version.json` (version pack, tool, thời điể
 Sau khi package được publish lên npm:
 
 ```bash
-npx @nguyendangtruong79/ai-dev-workflow@0.2.0 claude
+npx @nguyendangtruong79/ai-dev-workflow@0.3.0 claude
 ```
 
 Clone repo rồi cài vẫn được:
@@ -87,7 +87,8 @@ git clone https://github.com/nguyendangtruong79/ai-dev-workflow
 | `/plan [feature-id]` | Chỉ chạy bước lên plan |
 | `/implement [feature-id]` | Chỉ chạy TDD loop |
 | `/review [feature-id]` | Review code + security cho diff hiện tại |
-| `/bugfix <mô tả bug>` | Flow debug: tái hiện → điều tra → thảo luận → fix → lặp test |
+| `/deliver [id]` | Tạo/cập nhật PR, ghi evidence CI, rồi DONE |
+| `/bugfix <mô tả bug>` | Flow debug: tái hiện → điều tra → thảo luận → fix → review → deliver |
 | `/status [continue]` | Xem trạng thái hoặc tiếp tục công việc đang dở |
 
 Hãy commit `.cursor/` hoặc `.claude/` cùng với `context/` để cả team dùng chung workflow và chung tài liệu.
@@ -152,6 +153,6 @@ npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow#<commit-sha> claud
 npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow#<commit-sha> cursor
 ```
 
-Pin a commit. `--force` backs up then overwrites pack files (never `context/project/*`). `--dry-run` previews. After npm publish: `npx @nguyendangtruong79/ai-dev-workflow@0.2.0 claude`.
+Pin a commit. `--force` backs up then overwrites pack files (never `context/project/*`). `--dry-run` previews. After npm publish: `npx @nguyendangtruong79/ai-dev-workflow@0.3.0 claude`.
 
 Skills are original adaptations inspired by [obra/superpowers](https://github.com/obra/superpowers), [github/spec-kit](https://github.com/github/spec-kit), [anthropics/claude-code-security-review](https://github.com/anthropics/claude-code-security-review), and OWASP. See [CREDITS.md](CREDITS.md). License: MIT.

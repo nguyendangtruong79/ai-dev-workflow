@@ -78,4 +78,4 @@ Before fixing, verify each finding against the code. Reject false positives with
 - Write all findings into `06-review.md` (`templates/review.md`), with a section per round.
 - If any Critical/Major remains open: increment `loops.reviewRounds` in `status.json` (and mirror `STATUS.md`), go back to `tdd-loop` (fix mode), then review again with only the fix diff and the open findings.
 - Round limit: **3**. If still failing after 3 rounds, stop and present the remaining findings to the user with options.
-- When zero Critical/Major remain: Phase = DONE, run `verification-before-completion`, then give the final summary.
+- When zero Critical/Major remain: set `phase` to `DELIVER`, append metrics, and **immediately start `deliver-pr`**. (DONE comes after DELIVER + verification.)

@@ -4,10 +4,13 @@
 |---|---|
 | ID | <YYYYMMDD-slug> |
 | Type | feature |
-| Phase | REQUIRE / PLAN / BUILD / REVIEW / DONE |
+| Work type | code / docs / infra / config |
+| Phase | REQUIRE / PLAN / BUILD / REVIEW / DELIVER / DONE |
 | Branch | `feat/<YYYYMMDD-slug>` |
 | Gate 1 (spec approved) | pending / approved on <date> |
 | Gate 2 (plan approved) | pending / approved on <date> |
+| Risk gate | n/a / pending / approved on <date> |
+| PR | <url or none> |
 | Owner | <developer> |
 | Last updated | <date time> |
 
@@ -18,7 +21,8 @@
 - [ ] Plan approved (`03-plan.md`, `04-test-cases.md`)
 - [ ] Implementation complete (`05-implementation-log.md`)
 - [ ] Review passed (`06-review.md`)
-- [ ] Verified and delivered
+- [ ] Delivered (PR or local skip)
+- [ ] Verified and done
 
 ## Loop counters
 
