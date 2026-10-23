@@ -20,9 +20,11 @@ This project uses a structured AI workflow. Skills live in `.claude/skills/`, su
 
 - `context/project/` holds tech stack, structure, conventions, and commands. Create it with `/onboard` if it is missing. Pass a file onward only when that step uses it.
 - `context/features/<YYYYMMDD>-<slug>/` - STATUS, discussion, spec, plan, test cases, implementation log, review.
-- `context/bugs/<YYYYMMDD>-<slug>/` - STATUS, report, investigation, fix.
+- `context/bugs/<YYYYMMDD>-<slug>/` - bug STATUS templates, report, investigation, fix (no feature Gate 1/2).
+- `context/workflow-version.json` - installed pack version (written by the installer).
+- Features use branch `feat/<id>`; bugs use `fix/<id>`. Stay on that branch while working.
 - `context/ACTIVE.json` names the single item in progress. If several are unfinished, commands require an id.
-- Each feature and bug has `status.json` (authority: phase, gate hashes, loop counters, evidence) and `STATUS.md` (human mirror).
+- Each feature and bug has `status.json` (authority: phase, gates, loop counters, evidence) and `STATUS.md` (human mirror).
 - Tasks run one at a time. Do not parallelize implementation.
 - Read-only subagents use Read, Grep, and Glob only. If a review cannot stay read-only, record `isolation: degraded`.
 - Keep both status files current after every step so any developer or agent can resume.

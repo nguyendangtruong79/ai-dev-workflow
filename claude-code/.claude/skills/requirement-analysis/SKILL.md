@@ -23,7 +23,7 @@ context/features/<YYYYMMDD>-<slug>/
 ### Step 1: Understand context (silent)
 - Read `context/project/*` and skim related code/docs so you don't ask questions the codebase already answers.
 - Check `context/features/` for related or overlapping features.
-- Create the feature folder and `STATUS.md` (Phase = REQUIRE).
+- Create the feature folder from the feature templates (`status.json`, `STATUS.md`), set `branch` to `feat/<id>`, create or check out that branch if git is available, and claim `context/ACTIVE.json`.
 
 ### Step 2: Restate
 Restate the request in 2-4 sentences: who, what, why. Ask the user to confirm or correct.

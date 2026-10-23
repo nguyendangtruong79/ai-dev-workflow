@@ -15,11 +15,16 @@ Based on: obra/superpowers `systematic-debugging` (4 phases, no fix before root 
 
 ```
 context/bugs/<YYYYMMDD>-<slug>/
-├── STATUS.md           # Phase = BUGFIX (ai-dev-workflow template)
+├── status.json         # from ai-dev-workflow/templates/status-bug.json
+├── STATUS.md           # from ai-dev-workflow/templates/STATUS-bug.md
 ├── 01-report.md        # templates/bug-report.md
 ├── 02-investigation.md # templates/investigation.md (evidence + hypotheses + agreed root cause)
 └── 03-fix.md           # what changed, tests, verification
 ```
+
+Use the **bug** templates only. Do not copy the feature Gate 1/2 checklist into a bug folder.
+
+When creating the bug folder: set `branch` to `fix/<id>`, create or check out that branch if git is available, and claim `context/ACTIVE.json`.
 
 ## Phase 1: Capture and reproduce
 
@@ -41,7 +46,7 @@ context/bugs/<YYYYMMDD>-<slug>/
 1. Write 1-3 ranked hypotheses: statement, supporting evidence, contradicting evidence, how to confirm.
 2. Test the top hypothesis with the **smallest possible experiment** (one variable at a time).
 3. **Discuss with the user** before fixing: present the confirmed (or most likely) root cause, the evidence, the proposed fix, and its blast radius (what else could be affected). Offer alternatives if there's a trade-off (quick fix vs proper fix). Wait for agreement.
-4. Record the agreed root cause and decision in `02-investigation.md`.
+4. Record the agreed root cause and decision in `02-investigation.md`. Set `gates.rootCause` to `approved` with `summary` and `at` in `status.json`, and set `diffBase` to current `HEAD` if it is null.
 
 ## Phase 4: Fix and loop
 

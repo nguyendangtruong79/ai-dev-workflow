@@ -13,7 +13,7 @@ Based on: obra/superpowers `test-driven-development` (the iron law) and `subagen
 
 ## Loop per task
 
-Before the first task, read `status.json`. Refuse to start unless `gates.spec` and `gates.plan` are `approved` and both hashes still match the files. Set `diffBase` if it is null.
+Before the first task, read `status.json`. Refuse to start unless `gates.spec` and `gates.plan` are `approved` and both hashes still match the files. Refuse if `git branch --show-current` is not `status.json.branch` (ask the user to switch). Set `diffBase` if it is null.
 
 For each unchecked task `T-xx` in `03-plan.md`, **one at a time** (never in parallel, even if an old plan says `[P]`). Delegate that single task to the `tdd-implementer` subagent when it can be spawned (`mode: "subagent"`); otherwise run the same loop yourself and set `mode: "inline"`.
 

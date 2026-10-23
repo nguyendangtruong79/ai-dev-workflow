@@ -22,7 +22,15 @@ jobs:
           test -f "$c/.cursor/rules/ai-dev-workflow.mdc"
           test -f "$c/.cursor/skills/tdd-loop/SKILL.md"
           test -d "$c/context/project"
+          test -f "$c/context/workflow-version.json"
+          grep -q '"version"' "$c/context/workflow-version.json"
+          echo keep > "$c/context/project/tech-stack.md"
+          bash install.sh cursor "$c" --force
+          test -f "$c/context/project/tech-stack.md"
+          grep -q keep "$c/context/project/tech-stack.md"
+          test -d "$c"/.ai-dev-workflow-backup-*
           k="$(mktemp -d)"; bash install.sh claude "$k"
           test -f "$k/.claude/rules/ai-dev-workflow.md"
           test -f "$k/.claude/skills/tdd-loop/SKILL.md"
           test -d "$k/context/project"
+          test -f "$k/context/workflow-version.json"

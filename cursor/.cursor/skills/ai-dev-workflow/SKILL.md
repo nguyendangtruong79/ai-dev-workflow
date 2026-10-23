@@ -24,20 +24,23 @@ Side     BUGFIX     systematic-debugging           (any time a bug appears)
 1. **Phase 0 first.** If `context/project/` is missing or empty, run `project-onboarding` before anything else. Every later phase reads it.
 2. **Two human gates only.** Stop and wait for explicit approval after the spec (Gate 1) and after the plan (Gate 2). Between Gate 2 and DONE, proceed automatically without asking, except when a loop limit is hit or a decision is genuinely ambiguous.
 3. **Automatic transitions.** When a phase's exit criteria are met, update `STATUS.md` and immediately start the next phase. Do not ask "should I continue?".
-4. **State on disk.** Every feature lives in `context/features/<YYYYMMDD>-<slug>/`. Every bug lives in `context/bugs/<YYYYMMDD>-<slug>/`. Write both `STATUS.md` (human) and `status.json` (authority). Templates: `templates/STATUS.md`, `templates/status.json`. If they disagree, **trust `status.json`**. Point `context/ACTIVE.json` (`templates/ACTIVE.json`) at the item you are working on.
-5. **Loop limits** (escalate to the user when exceeded; never loop silently forever):
+4. **State on disk.** Every feature lives in `context/features/<YYYYMMDD>-<slug>/`. Every bug lives in `context/bugs/<YYYYMMDD>-<slug>/`. Write both human STATUS and machine `status.json`. Features use `templates/STATUS.md` + `templates/status.json`. Bugs use `templates/STATUS-bug.md` (saved as `STATUS.md`) + `templates/status-bug.json` (saved as `status.json`). If they disagree, **trust `status.json`**. Point `context/ACTIVE.json` (`templates/ACTIVE.json`) at the item you are working on.
+5. **One item, one branch.** Features use `feat/<id>`. Bugs use `fix/<id>`. Create or check out that branch when the folder is created (if the repo is a git work tree). Store the name in `status.json.branch`. Before BUILD or a bug FIX, refuse to continue if `git branch --show-current` is not that branch (ask the user to switch). Do not force-push.
+6. **Loop limits** (escalate to the user when exceeded; never loop silently forever):
    | Loop | Limit |
    |---|---|
    | TDD red/green attempts per task | 5 |
    | Review -> fix rounds | 3 |
    | Bug fix attempts with no progress | 3 (then question the architecture) |
-6. **Traceability.** Requirement (`AC-xx`) -> test case (`TC-xx`) -> test code -> task (`T-xx`). Never drop the IDs.
-7. **Never cheat a loop.** Do not weaken, skip, or delete tests to make them pass. Do not mark something done without fresh evidence (see `verification-before-completion`).
-8. **Language.** Write artifacts in English unless `context/project/conventions.md` says otherwise. Talk to the user in the user's language.
+7. **Traceability.** Requirement (`AC-xx`) -> test case (`TC-xx`) -> test code -> task (`T-xx`). Never drop the IDs.
+8. **Never cheat a loop.** Do not weaken, skip, or delete tests to make them pass. Do not mark something done without fresh evidence (see `verification-before-completion`).
+9. **Language.** Write artifacts in English unless `context/project/conventions.md` says otherwise. Talk to the user in the user's language.
 
 ## State authority
 
-`status.json` is the only source for phase, gates, hashes, loop counters, `diffBase`, and evidence. Update it on every transition, then mirror the same facts into `STATUS.md`.
+`status.json` is the only source for phase, gates, hashes, loop counters, `branch`, `diffBase`, and evidence. Update it on every transition, then mirror the same facts into `STATUS.md`.
+
+Features use `gates.spec` / `gates.plan`. Bugs use `gates.rootCause` only (no Gate 1/2).
 
 ### Hashes
 

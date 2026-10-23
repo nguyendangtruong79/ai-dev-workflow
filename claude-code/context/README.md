@@ -5,12 +5,13 @@ Persistent memory for the AI dev workflow. Commit this folder so the whole team 
 ```
 context/
 ├── ACTIVE.json                  # the one feature or bug in progress
+├── workflow-version.json        # written by the installer (pack version + tool)
 ├── project/                     # created by /onboard - the project's rules
 │   ├── tech-stack.md
 │   ├── structure.md             # placement rules enforced by code review
 │   ├── conventions.md
 │   └── commands.md
-├── features/<YYYYMMDD>-<slug>/  # one folder per feature
+├── features/<YYYYMMDD>-<slug>/  # branch: feat/<id>
 │   ├── status.json              # authority: phase, gates, hashes, evidence
 │   ├── STATUS.md
 │   ├── 01-discussion.md
@@ -19,12 +20,12 @@ context/
 │   ├── 04-test-cases.md
 │   ├── 05-implementation-log.md
 │   └── 06-review.md
-└── bugs/<YYYYMMDD>-<slug>/      # one folder per bug
-    ├── status.json
-    ├── STATUS.md
+└── bugs/<YYYYMMDD>-<slug>/      # branch: fix/<id>
+    ├── status.json              # gates.rootCause (not Gate 1/2)
+    ├── STATUS.md                # from STATUS-bug.md template
     ├── 01-report.md
     ├── 02-investigation.md
     └── 03-fix.md
 ```
 
-`status.json` wins if it disagrees with `STATUS.md`. Gate approval stores a sha256 of the approved artifact. Tasks run one at a time.
+`status.json` wins if it disagrees with `STATUS.md`. Features approve spec/plan hashes; bugs approve root cause. One item per git branch. Tasks run one at a time.

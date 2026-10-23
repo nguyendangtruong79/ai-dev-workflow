@@ -47,30 +47,28 @@ Chi tiết nguồn tham khảo xem trong [CREDITS.md](CREDITS.md).
 
 Đứng trong thư mục gốc của dự án:
 
-npm 12 chặn cài từ Git nếu thiếu `--allow-git=all`:
+npm 12 chặn cài từ Git nếu thiếu `--allow-git=all`. Nên **pin commit** (không lấy tip `main` trần):
 
 ```bash
 # Claude Code
-npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow claude
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow#<commit-sha> claude
 
 # Cursor
-npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow cursor
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow#<commit-sha> cursor
 
-# ghi đè file đã có
-npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow claude --force
+# nâng cấp pack: backup rồi ghi đè .cursor/.claude (không đè context/project)
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow#<commit-sha> claude --force
+
+# xem trước, không ghi
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow#<commit-sha> claude --dry-run
 ```
 
-Sau khi package được publish lên npm, lệnh ngắn hơn:
+Installer ghi `context/workflow-version.json` (version pack, tool, thời điểm cài). `--force` sao lưu file sẽ bị ghi đè vào `.ai-dev-workflow-backup-<timestamp>/` trước khi copy.
+
+Sau khi package được publish lên npm:
 
 ```bash
-npx @nguyendangtruong79/ai-dev-workflow claude
-```
-
-Cài cố định trong dự án (devDependency), rồi chạy lại khi workflow có bản mới:
-
-```bash
-npm install -D github:nguyendangtruong79/ai-dev-workflow --allow-git=all
-npx ai-dev-workflow claude
+npx @nguyendangtruong79/ai-dev-workflow@0.2.0 claude
 ```
 
 Clone repo rồi cài vẫn được:
@@ -150,10 +148,10 @@ A team workflow for AI-assisted development with two human gates and autonomous 
 Install from the project root, then run `/onboard`:
 
 ```bash
-npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow claude
-npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow cursor
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow#<commit-sha> claude
+npx --allow-git=all github:nguyendangtruong79/ai-dev-workflow#<commit-sha> cursor
 ```
 
-After the package is published: `npx @nguyendangtruong79/ai-dev-workflow claude`. Add `--force` to overwrite existing files.
+Pin a commit. `--force` backs up then overwrites pack files (never `context/project/*`). `--dry-run` previews. After npm publish: `npx @nguyendangtruong79/ai-dev-workflow@0.2.0 claude`.
 
 Skills are original adaptations inspired by [obra/superpowers](https://github.com/obra/superpowers), [github/spec-kit](https://github.com/github/spec-kit), [anthropics/claude-code-security-review](https://github.com/anthropics/claude-code-security-review), and OWASP. See [CREDITS.md](CREDITS.md). License: MIT.
