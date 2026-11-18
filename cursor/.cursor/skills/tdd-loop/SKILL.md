@@ -28,8 +28,14 @@ Brief for that spawn only:
 - the matching rows from `04-test-cases.md`
 - `context/project/structure.md`
 - the one command from `commands.md` that runs a single test file
+- `context/project/ui-source.md` and the task's **UI source** line, only when that line is not `n/a`
 
 Do not attach `01-discussion.md`, the rest of the spec, other tasks, or the rest of `context/project/`. Do not paste earlier test logs into the brief.
+
+When the task names a UI source, read it before writing markup:
+- `figma`: call the project's already-connected Figma Dev Mode MCP for that node (design context, screenshot, variables). Use a Code Connect component when the node maps to one. The generated snippet is a reference. Production markup uses the repo component named on the task.
+- `codebase`: open only the named reference files and reuse their layout, components, and tokens.
+- If the node or the reference file cannot be read, stop and ask the user. Do not invent the screen.
 
 ```
 attempts = 0
@@ -37,7 +43,16 @@ RED      Write the test(s) for the task's TCs, in the path required by structure
          Run only those tests. They MUST fail, and fail for the expected reason
          (assertion on missing behavior, not a typo/import error).
          -> mark TC status "red" in 04-test-cases.md
-GREEN    Write the minimal production code to pass. No extra features.
+GREEN    The test is already red. Write the smallest production code that makes it pass.
+         Stop at the first rung that fully satisfies this task's test cases:
+         1. Code already in the repo, used the way neighboring code uses it.
+         2. The standard library or a platform feature, unless the project has its own.
+         3. An installed dependency. Do not add one for a few lines.
+         4. One clear line, when a reader gets it at a glance.
+         5. Otherwise the minimum code that passes.
+         The approved spec and conventions.md win over a smaller option.
+         Do not cut trust-boundary validation, data-loss handling, security, or accessibility.
+         No abstraction, wrapper, or option this task did not ask for.
          Run the task's tests.
          If failing: attempts += 1; read the actual error; fix code (not the test); repeat.
          If attempts == 5: STOP, switch to systematic-debugging and ask the user.

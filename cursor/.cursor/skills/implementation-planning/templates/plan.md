@@ -36,6 +36,7 @@ Run tasks in order. Do not parallelize.
 ### T-01: <title>
 - **Makes pass:** TC-01, TC-02
 - **Files:** `src/...` (create), `tests/...` (create)
+- **UI source:** `n/a`, or `<node-id | reference path>` reusing `<repo component>`
 - **Steps:**
   1. Write failing test(s) for TC-01, TC-02 in `tests/...`
   2. Run `<single test command>`; confirm failure for the expected reason

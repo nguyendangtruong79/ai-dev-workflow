@@ -14,5 +14,6 @@ Given a goal (onboarding, or "find patterns for feature X"):
 3. Sample 3-5 representative files per layer plus their tests; infer the conventions actually used (naming, error handling, logging, DI, test style). Note inconsistencies with examples.
 4. Identify exact commands for install, test (all / single file / by name), lint, format, typecheck, build.
 5. For feature-pattern searches: list the most similar existing features with file paths and the pattern to reuse.
+6. For onboarding, also report UI evidence: component directory, token file, app shell, and 3–5 reference screens, with paths. Do not call Figma. The parent skill checks whether a Figma Dev Mode MCP is connected.
 
-Return a concise structured report following the sections of `.cursor/skills/project-onboarding/templates/` (tech stack, structure + placement rules, conventions, commands). Cite file paths as evidence. Mark guesses as `[UNVERIFIED]`.
+Return a concise structured report following the sections of `.cursor/skills/project-onboarding/templates/` (tech stack, structure + placement rules, conventions, commands, UI source). Cite file paths as evidence. Mark guesses as `[UNVERIFIED]`.

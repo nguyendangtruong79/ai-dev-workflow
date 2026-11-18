@@ -11,7 +11,8 @@ context/
 │   ├── tech-stack.md
 │   ├── structure.md             # placement rules enforced by code review
 │   ├── conventions.md
-│   └── commands.md
+│   ├── commands.md
+│   └── ui-source.md           # figma | codebase | none
 ├── features/<YYYYMMDD>-<slug>/  # branch: feat/<id>
 │   ├── status.json              # authority: phase, gates, hashes, evidence
 │   ├── STATUS.md

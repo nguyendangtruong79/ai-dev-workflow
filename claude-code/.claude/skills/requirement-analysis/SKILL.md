@@ -43,7 +43,7 @@ Restate the request in 2-4 sentences: who, what, why. Ask the user to confirm or
 | Alternative & error flows | Invalid input, empty states, failures of dependencies, concurrency, retries |
 | Business rules | Calculations, limits, validation, state transitions |
 | Data | Entities, fields, constraints, retention, PII |
-| Interfaces | UI, API contract, events, integrations |
+| Interfaces | UI source per `ui-source.md`, API contract, events, integrations |
 | Non-functional | Performance, security/authz, audit, i18n, accessibility, compatibility |
 | Constraints | Deadlines, tech constraints, backward compatibility, migrations |
 
@@ -56,6 +56,11 @@ Fill `templates/spec.md`. Requirements:
 - Every acceptance criterion has an ID (`AC-01`...) and uses **Given / When / Then** with concrete values.
 - Each AC is independently testable and unambiguous; cover error and edge cases, not just the happy path.
 - Mark unresolved items inline with `[NEEDS CLARIFICATION: question]`.
+- **UI source.** Read `context/project/ui-source.md` before drafting section 8.
+  - `none`: do not add screens. If the user wants UI anyway, stop and ask them to change the mode.
+  - `figma`: each screen is the file URL plus `node-id`, including empty, loading, and error when the story has those states. Do not copy pixels into the spec. A screen without a node-id, or "make it look nice", is `[NEEDS CLARIFICATION]`.
+  - `codebase`: each screen names the reference path and what may differ. A missing path is `[NEEDS CLARIFICATION]`.
+  - A feature with no UI writes `UI source: n/a` in section 8.
 
 ### Step 6: Clarification pass (spec-kit /clarify)
 Scan the draft against this taxonomy and list what is missing or vague: functional scope, data model, UX flow, non-functional qualities, integrations, edge cases, constraints/trade-offs, terminology consistency, completion signals.
@@ -69,5 +74,6 @@ Present a short summary: goal, scope in/out, number of ACs, key decisions, risks
 
 - Never assume a business rule. If it matters for behavior or tests, ask.
 - Vague words (`fast`, `secure`, `user-friendly`, `etc.`, `and so on`) must become measurable statements or be removed.
-- Keep the spec about **what/why**, not **how**. Technical design goes into the plan.
+- Keep the spec about **what/why**, not **how**. Technical design goes into the plan. A Figma `node-id` or a reference path is the source, not a pixel spec.
+- Gate 1 does not approve a UI spec that still lacks its node-id (`figma`) or reference path (`codebase`).
 - If the request is too large (more than ~10 ACs or several independent subsystems), propose splitting it into multiple features and spec the first one.

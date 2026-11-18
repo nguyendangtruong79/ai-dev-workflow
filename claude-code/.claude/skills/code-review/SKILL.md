@@ -28,7 +28,7 @@ On review round 1, run `semgrep`, `gitleaks`, and the dependency audit only if i
 Launch with fresh context. They must not see the implementer's reasoning or earlier test logs.
 
 Round 1 briefs:
-- `code-reviewer`: scoped diff, acceptance criteria from `02-spec.md`, matching rows from `04-test-cases.md`, `structure.md`, `conventions.md`.
+- `code-reviewer`: scoped diff, acceptance criteria from `02-spec.md`, matching rows from `04-test-cases.md`, `structure.md`, `conventions.md`, and `ui-source.md` when any task in the diff has a UI source line other than `n/a`.
 - `security-reviewer`: scoped diff, the security section of `tech-stack.md`, and the scanner excerpt.
 
 Round 2 and later: only the diff since the previous review round, plus the open finding ids and their one-line text. Do not resend the original feature diff, the spec, or the scanner log.
@@ -60,12 +60,23 @@ If a subagent cannot be spawned, do that pass yourself and set `mode` to `inline
 - Tests assert behavior, not implementation; meaningful names; no sleeps/flakiness; mocks only at boundaries.
 - Edge and error cases covered; no skipped/disabled tests; no assertions removed.
 
+**F. Necessary code**
+- A new dependency, a from-scratch replacement of a component the repo already has, or a new pattern where `conventions.md` already names one, is a Major finding.
+- An abstraction, wrapper, or option the spec did not ask for is a Minor finding.
+- Do not ask to delete trust-boundary validation, data-loss handling, security, or accessibility to make the diff smaller.
+
+**G. UI source** (enforce `ui-source.md`)
+- Skip when mode is `none`, or this diff changes no visible UI.
+- `figma`: the screen follows the named node. Pasting MCP-generated code as the production implementation, or restyling chrome the file says comes from the repo, is Major.
+- `codebase`: a new button, spacing scale, or color where a reference component already exists is Major.
+- A visible screen whose plan task has no UI source line is Major.
+
 ### 4. Severity
 
 | Severity | Meaning | Action |
 |---|---|---|
 | Critical | Security vulnerability, data loss/corruption, broken AC, crash | Must fix |
-| Major | Wrong placement/layering, convention violation, failing automated check, missing test for an AC, significant perf issue | Must fix |
+| Major | Wrong placement/layering, convention violation, UI source mismatch, failing automated check, missing test for an AC, significant perf issue | Must fix |
 | Minor | Readability, naming nit, small refactor | Fix if cheap, else list as follow-up |
 | Info | Observations, praise | none |
 

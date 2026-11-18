@@ -36,6 +36,7 @@ Side     BUGFIX     systematic-debugging           (any time a bug appears)
 7. **Traceability.** Requirement (`AC-xx`) -> test case (`TC-xx`) -> test code -> task (`T-xx`). Never drop the IDs.
 8. **Never cheat a loop.** Do not weaken, skip, or delete tests to make them pass. Do not mark something done without fresh evidence (see `verification-before-completion`).
 9. **Language.** Write artifacts in English unless `context/project/conventions.md` says otherwise. Talk to the user in the user's language.
+10. **Smallest complete change.** Reuse this repo, the platform, and installed dependencies before writing new code. The approved spec and `conventions.md` win over a smaller option. Do not cut trust-boundary validation, data-loss handling, security, or accessibility. Do not drop a failing test to keep the diff small.
 
 ## State authority
 
@@ -110,7 +111,7 @@ When asked to continue or for status:
 
 | Phase | Exit when |
 |---|---|
-| ONBOARD | `context/project/{tech-stack,structure,conventions,commands}.md` exist and the user confirmed them |
+| ONBOARD | `context/project/{tech-stack,structure,conventions,commands,ui-source}.md` exist and the user confirmed them |
 | REQUIRE | `02-spec.md` has no open `[NEEDS CLARIFICATION]` markers and `gates.spec.state` is `approved` with a matching sha256 |
 | PLAN | `03-plan.md` and `04-test-cases.md` exist, every AC maps to at least one TC, `gates.plan` approved with a matching sha256 |
 | BUILD | every task checked with lane-appropriate evidence; for `code`, suite/lint/typecheck green; `diffBase` set; risk gate approved or `n/a` |

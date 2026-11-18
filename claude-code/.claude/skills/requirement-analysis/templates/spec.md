@@ -47,7 +47,18 @@
 
 ## 8. Interfaces
 
-<UI states, API contract (method, path, request, response, error codes), events>
+### UI source
+
+`n/a` when this feature has no UI. Otherwise follow `context/project/ui-source.md`.
+
+| Screen / state | Source (Figma `node-id`, or repo path) | May differ by |
+|---|---|---|
+| default | | |
+| empty / loading / error | when the story has that state | |
+
+### API / events
+
+<API contract (method, path, request, response, error codes), events>
 
 ## 9. Non-functional requirements
 

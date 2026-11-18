@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow Claude Code hiện tại</title>
+<style>
+  :root {
+    --paper: #f3efe6;
+    --ink: #1c1915;
+    --muted: #5e584e;
+    --line: #d9d1c3;
+    --card: #fffdf8;
+    --you: #8a4b12;
+    --you-bg: #f8ead7;
+    --auto: #1d5c45;
+    --auto-bg: #e5f2eb;
+    --loop: #8f2d2d;
+    --loop-bg: #f8e6e4;
+    --check: #1a4668;
+    --check-bg: #e4eef5;
+    --shadow: 0 1px 0 rgba(28, 25, 21, 0.04), 0 12px 32px rgba(28, 25, 21, 0.06);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 500px at 10% -10%, #efe4cf 0%, transparent 55%),
+      var(--paper);
+    font: 16px/1.5 "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+  }
+  button, input { font: inherit; color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 36px 22px 72px; }
+  header h1 {
+    margin: 8px 0 10px;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .kicker {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .lead { max-width: 68ch; margin: 0 0 22px; font-size: 19px; }
+  .roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 28px; }
+  .role {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px 16px;
+    box-shadow: var(--shadow);
+  }
+  .role b { display: block; font-size: 18px; margin-bottom: 4px; }
+  .role span { color: var(--muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin: 0 0 18px;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 13px;
+  }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 999px; padding: 4px 10px;
+    background: var(--card); border: 1px solid var(--line);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .you { color: var(--you); background: var(--you-bg); border-color: #efd3b0; }
+  .auto { color: var(--auto); background: var(--auto-bg); border-color: #b7d8c8; }
+  .loop { color: var(--loop); background: var(--loop-bg); border-color: #ecc3be; }
+  .check { color: var(--check); background: var(--check-bg); border-color: #c3d7e6; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr); gap: 18px; align-items: start; }
+  .board, .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+  }
+  .board { padding: 18px 18px 8px; }
+  .board h2, .panel h2, .lower h2 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+  .hint { margin: 0 0 14px; color: var(--muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; }
+  .track { position: relative; margin: 0; padding: 0 0 8px 0; list-style: none; }
+  .track::before {
+    content: "";
+    position: absolute;
+    left: 27px; top: 8px; bottom: 18px;
+    width: 2px;
+    background: #e4dccf;
+  }
+  .step, .gate {
+    position: relative;
+    width: 100%;
+    text-align: left;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 12px;
+    padding: 8px 10px 8px 58px;
+    cursor: pointer;
+  }
+  .step:hover, .gate:hover { background: #faf7f1; }
+  .step.active, .gate.active { background: #f6f1e6; border-color: #e4d7c2; }
+  .mark {
+    position: absolute; left: 14px; top: 12px;
+    width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px; font-weight: 700;
+    background: #efeae1; border: 1px solid #ddd4c6;
+    z-index: 1;
+  }
+  .gate .mark { border-radius: 6px; transform: rotate(45deg); background: var(--you-bg); border-color: #efd3b0; color: var(--you); }
+  .gate .mark span { transform: rotate(-45deg); display: block; }
+  .step strong, .gate strong { display: block; font-size: 17px; }
+  .meta { color: var(--muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; }
+  .join {
+    margin: 8px 0 16px 58px;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--auto);
+  }
+  .panel { padding: 20px 20px 16px; position: sticky; top: 16px; min-height: 420px; }
+  .panel h2 { font-size: 28px; line-height: 1.15; }
+  .eyebrow {
+    margin: 0 0 6px;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+  }
+  .panel p { margin: 8px 0; }
+  dl { margin: 14px 0 0; }
+  .row { display: grid; grid-template-columns: 112px 1fr; gap: 8px; padding: 8px 0; border-top: 1px solid #efe8dc; }
+  dt { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+  dd { margin: 0; }
+  code, .file {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.86em;
+  }
+  .file {
+    display: inline-block;
+    margin: 0 6px 6px 0;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #f6f1e8;
+    border: 1px solid #e6dccb;
+  }
+  .lower { margin-top: 18px; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px 18px 8px; box-shadow: var(--shadow); }
+  .mini { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 16px; }
+  .box {
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #faf7f1;
+    font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px;
+  }
+  .box b { display: block; font-family: Georgia, serif; font-size: 16px; }
+  .ladder { list-style: none; margin: 0 0 12px; padding: 0; }
+  .ladder li {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 0;
+    border-top: 1px solid #efe8dc;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+  }
+  .ladder b {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: #f6f1e8; border: 1px solid #e4d7c2;
+    font-family: Georgia, serif; font-size: 14px;
+  }
+  .guard {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--you-bg);
+    border: 1px solid #efd3b0;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+  }
+  .arrow { color: var(--muted); font-family: ui-sans-serif, system-ui, sans-serif; }
+  table { width: 100%; border-collapse: collapse; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; margin: 8px 0 14px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #efe8dc; vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .note {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--check);
+    background: var(--check-bg);
+    border-radius: 0 12px 12px 0;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+  }
+  .book {
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--check);
+    background: var(--check-bg);
+    border-radius: 999px;
+    padding: 1px 6px;
+    margin-left: 4px;
+    white-space: nowrap;
+  }
+  .group {
+    margin: 18px 0 6px;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ink-check { color: var(--check); }
+  .map td:first-child { font-weight: 600; }
+  .map td:nth-child(2) code { display: inline-block; white-space: nowrap; }
+  .map td:nth-child(3) { overflow-wrap: anywhere; }
+  @media (max-width: 860px) {
+    .roles, .layout, .lower { grid-template-columns: 1fr; }
+    .panel { position: static; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">claude-code/.claude · đúng theo skill và lệnh hiện có</p>
+    <h1>Workflow Claude đang làm</h1>
+    <p class="lead">Bạn đưa yêu cầu và chỉ dừng để duyệt vài cổng. Giữa các cổng, Claude tự đi bước tiếp theo và ghi việc đang làm xuống thư mục <code>context/</code>. Code mới chỉ xuất hiện khi code sẵn, nền tảng và dependency đang cài không làm đủ. Spec đã duyệt và <code>conventions.md</code> vẫn thắng.</p>
+  </header>
+
+  <section class="roles" aria-label="Ba vai">
+    <article class="role">
+      <b>Bạn</b>
+      <span>Nói yêu cầu. Duyệt spec, plan, rủi ro, và nguyên nhân bug. Claude hỏi bạn ở những chỗ đó.</span>
+    </article>
+    <article class="role">
+      <b>Skill</b>
+      <span>Bộ hướng dẫn trong <code>.claude/skills/</code>. Skill <code>ai-dev-workflow</code> chọn bước tiếp theo. Lúc plan, lúc GREEN và lúc review, skill bắt dừng ở cách ngắn nhất vẫn đủ yêu cầu đã duyệt.</span>
+    </article>
+    <article class="role">
+      <b>ai-dev.js</b>
+      <span>Không phải một phase. Đứng ở mép các bước: trỏ việc đang làm, đóng cổng, đổi phase, ghi evidence, và chặn test khi sổ chưa sẵn sàng. Không viết code sản phẩm.</span>
+    </article>
+  </section>
+
+  <div class="legend">
+    <span class="tag you"><i class="dot"></i> Dừng, chờ bạn</span>
+    <span class="tag auto"><i class="dot"></i> Tự đi tiếp</span>
+    <span class="tag loop"><i class="dot"></i> Quay lại nếu chưa đạt</span>
+    <span class="tag check"><i class="dot"></i> Bước có gọi ai-dev.js</span>
+  </div>
+
+  <div class="layout">
+    <div class="board">
+      <h2>Feature</h2>
+      <p class="hint">Bấm một bước. Lệnh <code>/feature</code> đi hết đường này sau khi bạn duyệt hai cổng.</p>
+      <ol class="track" id="feature"></ol>
+
+      <h2>Bug</h2>
+      <p class="hint">Lệnh <code>/bugfix</code>. Không có Gate 1 và Gate 2. Có một cổng nguyên nhân.</p>
+      <ol class="track" id="bug"></ol>
+      <p class="join">Sau khi sửa xong, bug đi vào Review rồi Deliver của cùng quy trình, rồi mới Done.</p>
+    </div>
+
+    <aside class="panel" id="panel" aria-live="polite">
+      <p class="eyebrow">Chọn một bước</p>
+      <h2>Bấm một ô bên trái</h2>
+      <p>Mỗi ô là một phase. Ô vàng là chỗ Claude dừng và chờ bạn nói duyệt.</p>
+      <p>Muốn làm tiếp việc đang dở, gõ <code>/status continue</code>. Claude đọc <code>context/ACTIVE.json</code>, tính lại hash, rồi đi từ bước còn thiếu.</p>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:18px" id="harness-where">
+    <h2>ai-dev.js đứng ở bước nào</h2>
+    <p class="hint">Skill viết spec, plan, code. <code>ai-dev.js</code> không viết những file đó. Nó đứng ở mép bước: ghi phase, đóng cổng, ghi evidence, và từ chối khi sổ không khớp file trên đĩa.</p>
+
+    <p class="group">Feature</p>
+    <table class="map">
+      <thead><tr><th>Bước</th><th>Lệnh</th><th>Sổ làm gì</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Onboard</td>
+          <td>—</td>
+          <td>Không gọi. Bước này không có <code>status.json</code>. <code>/feature</code> thấy <code>context/project/</code> trống thì quay lại đây trước.</td>
+        </tr>
+        <tr>
+          <td>Require</td>
+          <td><code>claim</code><br><code>phase set REQUIRE</code></td>
+          <td>Trỏ <code>context/ACTIVE.json</code> vào feature vừa tạo và ghi phase. Chưa có cổng để duyệt.</td>
+        </tr>
+        <tr>
+          <td>Gate 1</td>
+          <td><code>gate approve spec</code></td>
+          <td>Ghi <code>gates.spec</code> = approved kèm sha256 của <code>02-spec.md</code>. Lời “nghe ổn” không đi qua lệnh này thì cổng vẫn pending.</td>
+        </tr>
+        <tr>
+          <td>Plan</td>
+          <td><code>phase set PLAN</code><br><code>validate</code></td>
+          <td>Vào phase PLAN. Nếu spec đã duyệt mà file đã khác hash, <code>validate</code> báo drifted. Chưa chặn việc viết plan.</td>
+        </tr>
+        <tr>
+          <td>Gate 2</td>
+          <td><code>gate approve plan</code><br><code>phase set BUILD</code></td>
+          <td>Hash nối <code>03-plan.md</code> với <code>04-test-cases.md</code>. <code>phase set BUILD</code> ghi <code>diffBase</code> = commit HEAD nếu còn trống.</td>
+        </tr>
+        <tr>
+          <td>Build</td>
+          <td><code>assert-build-ready</code><br><code>evidence append</code><br><code>gate approve risk</code><br><code>phase set REVIEW</code></td>
+          <td>Trước test: Gate 1 và Gate 2 approved, hash khớp, đúng nhánh <code>feat/&lt;id&gt;</code>, <code>ACTIVE.json</code> trỏ đúng id. <code>gates.risk</code> đang pending thì fail. Mỗi task và suite cuối ghi một dòng evidence. <code>validate</code> từ chối khi <code>tddAttempts</code> quá 5. Hết task thì sang REVIEW.</td>
+        </tr>
+        <tr>
+          <td>Review</td>
+          <td><code>validate</code></td>
+          <td>Không đọc diff và không đóng finding. Chỉ từ chối khi <code>reviewRounds</code> quá 3. Finding Critical/Major trong <code>06-review.md</code> được đọc lúc Done.</td>
+        </tr>
+        <tr>
+          <td>Deliver</td>
+          <td><code>phase set DELIVER</code><br><code>evidence append</code></td>
+          <td>Đổi phase. Có CI thì một dòng evidence, không dán log. Không merge.</td>
+        </tr>
+        <tr>
+          <td>Done</td>
+          <td><code>assert-done</code><br><code>phase set DONE</code></td>
+          <td>Phase phải đã tới REVIEW, DELIVER, hoặc DONE. <code>06-review.md</code> không còn Critical/Major open. Khi phase là DONE, dòng Result phải là PASS. <code>workType: code</code> cần evidence <code>suite</code> với exit code 0.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="group">Bug</p>
+    <table class="map">
+      <thead><tr><th>Bước</th><th>Lệnh</th><th>Sổ làm gì</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Báo cáo</td>
+          <td><code>claim</code><br><code>phase set BUGFIX</code></td>
+          <td>Trỏ ACTIVE sang bug và ghi phase. Không có Gate 1, Gate 2.</td>
+        </tr>
+        <tr>
+          <td>Tái hiện</td>
+          <td><code>evidence append</code></td>
+          <td><code>--kind bug</code>, bắt buộc <code>--exit</code>, <code>--command</code>, <code>--summary</code>. Một dòng, không dán log.</td>
+        </tr>
+        <tr>
+          <td>Điều tra</td>
+          <td>—</td>
+          <td>Không gọi. Subagent chỉ đọc và viết <code>02-investigation.md</code>.</td>
+        </tr>
+        <tr>
+          <td>Cổng nguyên nhân</td>
+          <td><code>gate approve rootCause</code></td>
+          <td>Ghi <code>gates.rootCause</code> = approved kèm summary. Bug chỉ có cổng này.</td>
+        </tr>
+        <tr>
+          <td>Sửa</td>
+          <td><code>assert-build-ready</code><br><code>evidence append</code><br><code>validate</code></td>
+          <td>Root cause phải approved, đúng nhánh <code>fix/&lt;id&gt;</code>. <code>validate</code> từ chối khi <code>bugFixAttempts</code> quá 3. Xong thì đi Review, Deliver, Done của feature.</td>
+        </tr>
+        <tr>
+          <td>Review → Done</td>
+          <td>cùng feature</td>
+          <td><code>assert-done</code> cho bug đòi root cause approved và evidence <code>bug</code> hoặc <code>suite</code> exit code 0. Không đọc <code>06-review.md</code> theo luật feature.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="group">Bọc quanh mọi phiên, không thuộc một phase</p>
+    <table class="map">
+      <thead><tr><th>Khi</th><th>Hook</th><th>Sổ làm gì</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Mở phiên</td>
+          <td><code>claude-session-start</code></td>
+          <td>In ACTIVE, phase, và bước kế (<code>session-context</code>). Không có việc đang làm thì bảo chạy <code>/onboard</code> hoặc <code>/feature</code> / <code>/bugfix</code>.</td>
+        </tr>
+        <tr>
+          <td>Trước Bash</td>
+          <td><code>claude-pre-bash</code></td>
+          <td>Chỉ lệnh test (<code>npm</code>, <code>pytest</code>, <code>go test</code>, …). Feature ở BUILD, REVIEW, DELIVER, hoặc bug ở BUGFIX, REVIEW, DELIVER. <code>assert-build-ready</code> fail thì hỏi bạn, không tự cho chạy. Lệnh khác vẫn đi.</td>
+        </tr>
+        <tr>
+          <td>Agent dừng</td>
+          <td><code>claude-stop</code></td>
+          <td>Chưa DONE mà hash drifted hoặc vượt giới hạn vòng lặp thì in cảnh báo. Không chặn lượt đó.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="hint">Ba hook này có trong file, nhưng repo hiện chưa có <code>settings.json</code> gắn vào Claude, nên chúng chưa tự chạy. Skill gọi lệnh trực tiếp. Cùng file còn bốn hook Cursor (<code>cursor-session-start</code>, <code>cursor-before-shell</code>, <code>cursor-subagent-start</code>, <code>cursor-stop</code>) cho pack <code>.cursor</code>; trang này chỉ gắn hook Claude vào các bước.</p>
+  </section>
+
+  <section class="lower">
+    <article class="card">
+      <h2>Bên trong BUILD, nếu là code</h2>
+      <p class="hint">Một task một lúc. Test đỏ viết trước. Thang dưới đây chỉ chọn code sản phẩm sau khi test đã fail đúng lý do.</p>
+      <div class="mini">
+        <div class="box"><b>RED</b>Viết test của task. Test phải fail đúng lý do.</div>
+        <span class="arrow">→</span>
+        <div class="box"><b>GREEN</b>Dừng ở bậc đầu tiên còn làm đủ test của task.</div>
+        <span class="arrow">→</span>
+        <div class="box"><b>REFACTOR</b>Dọn tên. Theo conventions.md. Test vẫn xanh.</div>
+      </div>
+      <ol class="ladder">
+        <li><b>1</b><span>Đã có trong repo: helper, component, pattern. Dùng đúng cách code xung quanh đang dùng.</span></li>
+        <li><b>2</b><span>Thư viện chuẩn hoặc tính năng của nền tảng, trừ khi dự án đã có cái của mình.</span></li>
+        <li><b>3</b><span>Dependency đang cài. Không thêm thư viện chỉ vì vài dòng.</span></li>
+        <li><b>4</b><span>Một dòng đọc là hiểu.</span></li>
+        <li><b>5</b><span>Phần code tối thiểu để test chuyển xanh.</span></li>
+      </ol>
+      <p class="guard">Spec đã duyệt và <code>conventions.md</code> thắng thang này. Không cắt validation ở biên tin cậy, xử lý lỗi để khỏi mất dữ liệu, bảo mật, accessibility.</p>
+      <p class="hint">Hết mọi task: chạy full test, lint, typecheck, build một lần, ghi một dòng evidence, rồi tự sang Review. Review bắt code dựng lại thứ đã có, hoặc dependency mới chỉ vì vài dòng.</p>
+      <p class="hint">Plan cũng đi thang này trước khi chia task, và không bỏ acceptance criterion để plan ngắn hơn. Việc docs, infra, hoặc config không bịa unit test. Mỗi task chạy check <code>CK-xx</code> đã ghi trong plan.</p>
+    </article>
+    <article class="card">
+      <h2>Giới hạn vòng lặp</h2>
+      <table>
+        <thead><tr><th>Vòng</th><th>Tối đa</th><th>Rồi thì</th></tr></thead>
+        <tbody>
+          <tr><td>TDD cho một task</td><td>5 lần</td><td>Dừng, chuyển sang điều tra bug, hỏi bạn</td></tr>
+          <tr><td>Review → sửa</td><td>3 vòng</td><td>Dừng, đưa cho bạn</td></tr>
+          <tr><td>Sửa bug không tiến</td><td>3 lần</td><td>Giữ file trên đĩa, mở chat mới từ thư mục bug</td></tr>
+        </tbody>
+      </table>
+      <p class="hint">Sai nguyên nhân cũng vậy: ghi kết quả xuống đĩa, chat mới. Không mang log các lần thử hỏng sang phiên sau.</p>
+    </article>
+  </section>
+
+  <section class="card" style="margin-top:18px">
+    <h2>Sổ trên đĩa</h2>
+    <p class="hint"><code>status.json</code> là bản đúng. <code>STATUS.md</code> chỉ là bản cho người đọc. Hai file lệch nhau thì tin file json.</p>
+    <table>
+      <thead><tr><th>Chỗ</th><th>Có gì</th></tr></thead>
+      <tbody>
+        <tr><td><code>context/ACTIVE.json</code></td><td>Đúng một feature hoặc bug đang làm</td></tr>
+        <tr><td><code>context/project/</code></td><td>Stack, chỗ đặt file, quy ước, lệnh test, và <code>ui-source.md</code> (figma, codebase, hoặc none). Tạo bởi <code>/onboard</code></td></tr>
+        <tr><td><code>context/features/&lt;id&gt;/</code></td><td>Thảo luận, spec, plan, test case, log, review. Nhánh <code>feat/&lt;id&gt;</code></td></tr>
+        <tr><td><code>context/bugs/&lt;id&gt;/</code></td><td>Báo cáo, điều tra, bản sửa. Nhánh <code>fix/&lt;id&gt;</code></td></tr>
+        <tr><td><code>context/metrics/events.jsonl</code></td><td>Một dòng mỗi lần đổi phase, duyệt cổng, tăng vòng lặp. Không ghi log lệnh</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+<script>
+const feature = [
+  {
+    id: "onboard", kind: "step", n: "0", title: "Onboard",
+    line: "Một lần cho cả repo · /onboard",
+    eyebrow: "Phase 0 · chờ bạn xác nhận",
+    summary: "Claude đọc repo một lần và viết “hiến pháp” của dự án, kể cả nguồn giao diện. Mọi bước sau dựa vào các file này.",
+    rows: [
+      ["Lệnh", "/onboard"],
+      ["Skill", "project-onboarding"],
+      ["Ai làm", "Subagent codebase-analyst, chỉ đọc. Không sửa file. Không gọi Figma."],
+      ["Tạo ra", "context/project/tech-stack.md, structure.md, conventions.md, commands.md, ui-source.md"],
+      ["Nguồn UI", "figma nếu Figma Dev Mode MCP đã kết nối và bạn đưa URL file. codebase nếu không có Figma mà repo có UI. none nếu dự án không có giao diện. Có cả hai thì mode vẫn là figma, nút và khung lấy từ repo."],
+      ["Dừng khi", "Claude tóm tắt stack, chỗ đặt file, lệnh test, và mode UI, rồi chờ bạn xác nhận."],
+      ["Qua bước", "Năm file tồn tại và bạn đã xác nhận. Workflow không cài MCP."],
+      ["ai-dev.js", "Không gọi. Bước này không có status.json. Nếu context/project/ trống, /feature phải chạy bước này trước."]
+    ]
+  },
+  {
+    id: "require", kind: "step", n: "1", title: "Require", book: true,
+    line: "Biến câu nói thành spec · /feature",
+    eyebrow: "Phase 1 · tự hỏi, rồi dừng",
+    summary: "Chưa viết code, chưa viết plan. Claude hỏi cho đủ để viết một spec mà test có thể bám vào.",
+    rows: [
+      ["Lệnh", "/feature <yêu cầu>. Trống thì Claude hỏi lại."],
+      ["Skill", "requirement-analysis"],
+      ["Việc làm", "Tạo thư mục feature, nhánh feat/<id>, trỏ ACTIVE.json vào đó. Nhắc lại yêu cầu. Hỏi những câu không phụ thuộc nhau trong một tin, tối đa 5 câu."],
+      ["Tạo ra", "01-discussion.md và 02-spec.md, cùng status.json, STATUS.md"],
+      ["Nguồn UI", "Spec mục Interfaces ghi node-id (figma) hoặc đường dẫn màn hình mẫu (codebase), kể cả empty, loading, error khi story có các trạng thái đó. Feature không có UI ghi n/a. “Làm cho đẹp” thì chưa được qua Gate 1."],
+      ["Cấm", "Viết code hoặc plan trong phase này. Không chép pixel từ Figma vào spec."],
+      ["Tiếp", "Hết câu hỏi thì sang Gate 1."],
+      ["ai-dev.js", "claim trỏ ACTIVE.json. phase set REQUIRE ghi phase. Chưa có cổng để duyệt."]
+    ]
+  },
+  {
+    id: "gate1", kind: "gate", n: "1", title: "Gate 1 · duyệt spec", book: true,
+    line: "Bạn nói duyệt. Claude lưu hash của 02-spec.md",
+    eyebrow: "Cổng người · chờ bạn",
+    summary: "“Nghe ổn” bằng lời chưa đủ. Duyệt nghĩa là gates.spec.state = approved, kèm sha256 của file spec và thời điểm.",
+    rows: [
+      ["Bạn làm", "Đọc spec. Duyệt, hoặc bảo sửa."],
+      ["Claude ghi", "Hash sha256 của 02-spec.md vào status.json."],
+      ["Nếu spec đổi sau đó", "Hash không còn khớp. Cổng trở lại pending. BUILD phải dừng và xin duyệt lại."],
+      ["ai-dev.js", "gate approve spec ghi sha256 của 02-spec.md. validate báo drifted nếu file đã khác bản đã duyệt."]
+    ]
+  },
+  {
+    id: "plan", kind: "step", n: "2", title: "Plan", book: true,
+    line: "Việc nhỏ, dùng lại code sẵn · /plan",
+    eyebrow: "Phase 2 · tự lập plan, rồi dừng",
+    summary: "Spec đã duyệt được cắt thành task ngắn. Mỗi yêu cầu AC có ít nhất một test TC hoặc một check CK. Mỗi hành vi dừng ở bậc đầu tiên còn làm đủ: code sẵn, thư viện chuẩn, dependency đang cài, rồi mới code mới.",
+    rows: [
+      ["Lệnh", "/plan, hoặc tự chạy sau Gate 1 khi bạn đang trong /feature."],
+      ["Skill", "implementation-planning"],
+      ["Chọn loại việc", "workType: code, docs, infra, hoặc config. Code thì TDD. Ba loại kia dùng check, không bịa unit test."],
+      ["Tạo ra", "03-plan.md và 04-test-cases.md. Task đánh số T-xx, làm lần lượt. Task đụng UI ghi node-id hoặc đường dẫn mẫu, và component repo sẽ dùng. Không chép pixel."],
+      ["Thang gọn", "Không bỏ AC để plan ngắn hơn. Dependency mới phải có lý do và được ghi là rủi ro dependency. conventions.md thắng nếu cách ngắn hơn phá quy ước."],
+      ["Rủi ro ghi sẵn", "migration, public API, dependency mới, phân quyền, secret. Cái đã có trong plan thì BUILD không hỏi lại."],
+      ["Tiếp", "Đưa plan cho bạn ở Gate 2."],
+      ["ai-dev.js", "phase set PLAN khi vào bước. validate báo drifted nếu spec đã duyệt mà 02-spec.md đã đổi. Chưa chặn việc viết plan."]
+    ]
+  },
+  {
+    id: "gate2", kind: "gate", n: "2", title: "Gate 2 · duyệt plan", book: true,
+    line: "Bạn duyệt plan. Sau đó Claude tự code.",
+    eyebrow: "Cổng người · chờ bạn",
+    summary: "Đây là cổng cuối trước khi Claude tự đi một mạch tới review, trừ khi gặp rủi ro mới hoặc vượt giới hạn vòng lặp.",
+    rows: [
+      ["Bạn làm", "Xem workType, danh sách task, bảng AC → test, các rủi ro. Duyệt hoặc chỉnh."],
+      ["Claude ghi", "Hash của 03-plan.md cộng 04-test-cases.md. Phase chuyển BUILD. diffBase = commit HEAD hiện tại."],
+      ["Nhánh", "Phải đứng trên feat/<id>. Sai nhánh thì từ chối BUILD."],
+      ["ai-dev.js", "gate approve plan ghi hash 03-plan.md cộng 04-test-cases.md. phase set BUILD ghi diffBase = HEAD nếu còn trống. assert-build-ready đòi Gate 1 và Gate 2 approved, hash khớp, đúng nhánh, ACTIVE.json trỏ đúng id."]
+    ]
+  },
+  {
+    id: "build", kind: "step", n: "3", title: "Build", book: true,
+    line: "Test đỏ, rồi thang 5 bậc · /implement",
+    eyebrow: "Phase 3 · tự chạy",
+    summary: "Với code: mỗi task là đỏ, rồi thang năm bậc, rồi dọn. Test đỏ viết trước. Spec đã duyệt và conventions.md thắng bậc ngắn hơn. Subagent tdd-implementer chỉ nhận một task, các dòng test của task đó, structure.md, và một lệnh chạy đúng file test.",
+    rows: [
+      ["Skill", "tdd-loop"],
+      ["Subagent", "tdd-implementer. Không spawn được thì Claude làm inline."],
+      ["Một task", "RED: test phải fail đúng lý do. GREEN: năm bậc, từ code sẵn tới code tối thiểu, tối đa 5 lần. Trước markup UI: đọc node Figma qua MCP đã kết nối, hoặc mở file mẫu. Đoạn code MCP sinh ra chỉ để đọc. Không đọc được nguồn thì dừng. REFACTOR: theo conventions.md, test vẫn xanh."],
+      ["Rủi ro mới", "Migration, API gãy, dependency, phân quyền, secret mà plan chưa duyệt: dừng, gates.risk = pending, chờ bạn."],
+      ["Hết task", "Chạy suite, lint, typecheck, build một lần. Rồi phase = REVIEW và mở review ngay."],
+      ["ai-dev.js", "assert-build-ready trước test. evidence append sau mỗi task và sau suite. gate approve risk khi bạn duyệt rủi ro mới. phase set REVIEW khi hết task. validate từ chối nếu tddAttempts quá 5. hook claude-pre-bash hỏi lại nếu cổng chưa xong, nhưng hook chưa được gắn trong settings."]
+    ]
+  },
+  {
+    id: "review", kind: "step", n: "4", title: "Review", book: true,
+    line: "Hai người đọc, chỉ đọc · /review",
+    eyebrow: "Phase 4 · tự chạy, có vòng lặp",
+    summary: "Chỉ xem diff từ diffBase, và chỉ những file có tên trong plan cùng implementation log. Finding Critical hoặc Major thì quay lại Build để sửa, tối đa 3 vòng.",
+    rows: [
+      ["Skill", "code-review, bên trong có security-review"],
+      ["Subagent", "code-reviewer và security-reviewer chạy song song, chỉ Read / Grep / Glob. Không sửa file."],
+      ["Tạo ra", "06-review.md"],
+      ["Vòng sau", "Chỉ gửi diff của bản sửa và các finding còn mở. Không gửi lại cả feature."],
+      ["Code thừa", "Major nếu dựng lại thứ repo đã có, thêm dependency vì vài dòng, pattern mới trái conventions.md, hoặc UI lệch ui-source.md (dán code Figma sinh ra, hoặc tự nghĩ nút khi đã có mẫu)."],
+      ["Sạch khi", "Không còn Critical/Major. Minor được ghi follow-up."],
+      ["Rồi", "Tự sang Deliver."],
+      ["ai-dev.js", "Không đọc diff. validate từ chối nếu reviewRounds quá 3. Finding trong 06-review.md được assert-done đọc lúc Done."]
+    ]
+  },
+  {
+    id: "deliver", kind: "step", n: "5", title: "Deliver", book: true,
+    line: "Mở pull request · /deliver",
+    eyebrow: "Phase 5 · tự chạy",
+    summary: "Đẩy nhánh, mở hoặc cập nhật PR. Không merge trừ khi bạn yêu cầu. CI fail thì chưa được Done.",
+    rows: [
+      ["Skill", "deliver-pr"],
+      ["Làm", "git push -u origin HEAD, rồi gh pr create hoặc pr edit. Body ngắn: link spec hoặc báo cáo bug, evidence một dòng, minor còn lại."],
+      ["Ghi", "prUrl vào status.json. Có CI thì ghi evidence kind ci."],
+      ["Không có remote", "prUrl để null, ghi skipped-local, hỏi bạn có Done tại máy không."],
+      ["Cấm", "Force-push. Merge khi bạn chưa yêu cầu."],
+      ["ai-dev.js", "phase set DELIVER. Có CI thì evidence append một dòng, không dán log."]
+    ]
+  },
+  {
+    id: "done", kind: "step", n: "6", title: "Done", book: true,
+    line: "Có bằng chứng mới được nói xong",
+    eyebrow: "Phase 6",
+    summary: "verification-before-completion: lệnh chứng minh phải chạy sau lần sửa cuối, có exit code, tóm tắt một dòng trong status.json.",
+    rows: [
+      ["Skill", "verification-before-completion"],
+      ["Feature code xong khi", "Suite, lint, typecheck, build xanh và còn tươi. Review sạch. Deliver xong hoặc bạn cho phép bỏ qua."],
+      ["Nói với bạn", "Làm được gì, workType, evidence, kết quả review, link PR, file đổi theo thư mục, việc còn lại."],
+      ["ai-dev.js", "assert-done rồi phase set DONE. Review không còn Critical/Major open. Phase DONE thì Result phải PASS. workType code cần suite exit code 0."]
+    ]
+  }
+];
+
+const bug = [
+  {
+    id: "report", kind: "step", n: "B", title: "Báo cáo", book: true,
+    line: "/bugfix · tạo thư mục bug",
+    eyebrow: "Bug · phase 1",
+    summary: "Ghi hiện tượng trước. Chưa sửa.",
+    rows: [
+      ["Lệnh", "/bugfix <mô tả>"],
+      ["Skill", "systematic-debugging"],
+      ["Tạo ra", "context/bugs/<id>/ với status.json, STATUS.md, 01-report.md. Nhánh fix/<id>. ACTIVE.json trỏ vào bug này."],
+      ["Hỏi bạn", "Expected và actual, bước tái hiện, môi trường, log. Câu nào không phụ thuộc nhau thì hỏi một lượt."],
+      ["ai-dev.js", "claim và phase set BUGFIX. Không có Gate 1, Gate 2."]
+    ]
+  },
+  {
+    id: "repro", kind: "step", n: "B", title: "Tái hiện", book: true,
+    line: "Một test tự động phải fail đúng bug",
+    eyebrow: "Bug · phase 1 tiếp",
+    summary: "Không tái hiện được thì chưa được sửa. Thu thêm log hoặc dữ liệu từ bạn.",
+    rows: [
+      ["Việc", "Viết test ở mức thấp nhất vẫn lộ bug. Chạy và xác nhận fail đúng lý do đã báo."],
+      ["Evidence", "Ghi một dòng, kind bug, có exit code."],
+      ["Chưa reproduce", "Dừng. Không đoán rồi vá."],
+      ["ai-dev.js", "evidence append --kind bug. Bắt buộc exit code, command, summary. Một dòng, không dán log."]
+    ]
+  },
+  {
+    id: "invest", kind: "step", n: "B", title: "Điều tra",
+    line: "Đọc ngược từ triệu chứng",
+    eyebrow: "Bug · phase 2",
+    summary: "Subagent bug-investigator chỉ tìm nguyên nhân. Không viết bản sửa.",
+    rows: [
+      ["Subagent", "bug-investigator, chỉ đọc, cộng lệnh đọc và test để lấy bằng chứng."],
+      ["Cách", "Trace giá trị hỏng đi lên call chain. So với chỗ code tương tự đang chạy đúng. Xem git log của file nghi ngờ."],
+      ["Tạo ra", "02-investigation.md: bằng chứng và 1–3 giả thuyết, xếp hạng."],
+      ["ai-dev.js", "Không gọi. Bước này chỉ đọc và viết 02-investigation.md."]
+    ]
+  },
+  {
+    id: "root", kind: "gate", n: "R", title: "Cổng nguyên nhân", book: true,
+    line: "Bạn đồng ý root cause rồi mới sửa",
+    eyebrow: "Cổng người · chờ bạn",
+    summary: "Claude trình bày nguyên nhân, bằng chứng, cách sửa, và phần có thể bị ảnh hưởng. Chờ bạn đồng ý.",
+    rows: [
+      ["Ghi khi bạn đồng ý", "gates.rootCause = approved, kèm summary và thời điểm. diffBase = HEAD nếu còn trống."],
+      ["Bug không có", "Gate 1 và Gate 2 của feature."],
+      ["ai-dev.js", "gate approve rootCause ghi state approved kèm summary. assert-build-ready ở phase BUGFIX đòi cổng này trước khi cho chạy test."]
+    ]
+  },
+  {
+    id: "fix", kind: "step", n: "B", title: "Sửa", book: true,
+    line: "Một bản sửa cho đúng nguyên nhân · tối đa 3 lần",
+    eyebrow: "Bug · phase 4 · có vòng lặp",
+    summary: "Sửa nguyên nhân một lần ở chỗ dùng chung, không vá từng caller và không thêm wrapper. Test tái hiện phải chuyển sang pass. Suite chạy một lần sau lần sửa cuối.",
+    rows: [
+      ["Cách sửa", "Một lần ở chỗ dùng chung. Không vá từng caller. Không thêm wrapper hay dependency."],
+      ["Ai code", "tdd-implementer nếu spawn được, nhận test tái hiện như test đang đỏ. Cùng thang năm bậc của BUILD."],
+      ["Đếm", "Mỗi lần sửa fail thì loops.bugFixAttempts + 1. Tới 3, hoặc nguyên nhân đổi: ghi đĩa, mở chat mới."],
+      ["Xong sửa", "Ghi 03-fix.md, rồi /review và /deliver."],
+      ["ai-dev.js", "assert-build-ready đòi root cause đã approved và đúng nhánh. evidence append sau lần sửa. validate từ chối nếu bugFixAttempts quá 3. assert-done lúc Done đòi evidence bug hoặc suite exit code 0."]
+    ]
+  }
+];
+
+function render(list, rootId) {
+  const root = document.getElementById(rootId);
+  root.innerHTML = list.map((s) => `
+    <li>
+      <button class="${s.kind}" data-id="${s.id}" type="button">
+        <span class="mark">${s.kind === "gate" ? `<span>${s.n}</span>` : s.n}</span>
+        <strong>${s.title}</strong>
+        <span class="meta">${s.line}${s.book ? ` <em class="book">ai-dev.js</em>` : ""}</span>
+      </button>
+    </li>
+  `).join("");
+}
+
+function show(step) {
+  document.querySelectorAll(".step, .gate").forEach((el) => {
+    el.classList.toggle("active", el.dataset.id === step.id);
+  });
+  const files = (step.rows.find((r) => r[0] === "Tạo ra") || ["", ""])[1];
+  document.getElementById("panel").innerHTML = `
+    <p class="eyebrow">${step.eyebrow}</p>
+    <h2>${step.title}</h2>
+    <p>${step.summary}</p>
+    <dl>
+      ${step.rows.map(([k, v]) => `<div class="row"><dt${k === "ai-dev.js" ? ` class="ink-check"` : ""}>${k}</dt><dd>${linkify(v)}</dd></div>`).join("")}
+    </dl>
+  `;
+  document.getElementById("panel").dataset.files = files;
+}
+
+function linkify(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/(\/[a-z][\w-]*)/g, "<code>$1</code>")
+    .replace(/\b(claim|validate|assert-build-ready|assert-done|evidence append|session-context|phase set [A-Z]+|gate approve [A-Za-z]+|claude-session-start|claude-pre-bash|claude-stop)\b/g, "<code>$1</code>")
+    .replace(/\b(context\/[A-Za-z0-9_<>./-]+|status\.json|STATUS\.md|ACTIVE\.json|[0-9]{2}-[\w.-]+\.md|gates\.[A-Za-z]+|workType|diffBase|sha256|tddAttempts|reviewRounds|bugFixAttempts)\b/g, "<code>$1</code>");
+}
+
+const all = [...feature, ...bug];
+render(feature, "feature");
+render(bug, "bug");
+document.body.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-id]");
+  if (!btn) return;
+  const step = all.find((s) => s.id === btn.dataset.id);
+  show(step);
+  if (window.matchMedia("(max-width: 860px)").matches) {
+    document.getElementById("panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
+show(feature[0]);
+</script>
+</body>
+</html>

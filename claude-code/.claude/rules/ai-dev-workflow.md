@@ -17,7 +17,7 @@ This project uses a structured AI workflow. Skills live in `.claude/skills/`, su
 
 ## Context folder
 
-- `context/project/` holds tech stack, structure, conventions, and commands. Create it with `/onboard` if it is missing. Pass a file onward only when that step uses it.
+- `context/project/` holds tech stack, structure, conventions, commands, and `ui-source.md` (`figma`, `codebase`, or `none`). Create it with `/onboard` if it is missing. Pass a file onward only when that step uses it.
 - `context/features/<YYYYMMDD>-<slug>/` - STATUS, discussion, spec, plan, test cases, implementation log, review.
 - `context/bugs/<YYYYMMDD>-<slug>/` - bug STATUS templates, report, investigation, fix (no feature Gate 1/2).
 - `context/workflow-version.json` - installed pack version (written by the installer).
@@ -39,3 +39,5 @@ This project uses a structured AI workflow. Skills live in `.claude/skills/`, su
 6. No completion claims without an exit code. Evidence summaries are one line. Do not paste command logs into chat or `status.json`.
 7. Batch clarification questions that do not depend on each other. Ask the next question only when it depends on the answer. Prefer a recommended option.
 8. Write artifacts in English; talk to the user in their language.
+9. Smallest change that meets the approved spec. Reuse this repo, the platform, and installed dependencies before new code. `conventions.md` wins on conflict. Do not cut trust-boundary validation, data-loss handling, security, or accessibility.
+10. Visible UI follows `context/project/ui-source.md`. Read the named Figma node or reference file before writing markup. MCP-generated code is a reference. If that source cannot be read, stop and ask. A feature with no UI skips this.

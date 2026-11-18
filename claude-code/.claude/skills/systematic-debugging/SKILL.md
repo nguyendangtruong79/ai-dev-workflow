@@ -52,7 +52,8 @@ When creating the bug folder: set `branch` to `fix/<id>`, create or check out th
 
 ```
 attempts = 0
-FIX     Implement a single fix that addresses the root cause (not the symptom).
+FIX     One change at the root cause in the shared code. Grep callers; do not patch each caller
+        and do not add a wrapper or a dependency for the fix.
         Delegate the code change to `tdd-implementer` when it can be spawned, with the
         reproduction test as the failing TC. Otherwise set mode to "inline".
 TEST    Run the reproduction test -> must pass. Append one-line evidence (kind "bug").

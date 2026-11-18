@@ -6,9 +6,9 @@ The skills in this repository are original adaptations. They are inspired by and
 |---|---|---|
 | 0. Onboarding | `project-onboarding` | [github/spec-kit](https://github.com/github/spec-kit) `/constitution` |
 | 1. Requirements | `requirement-analysis` | [obra/superpowers](https://github.com/obra/superpowers) `brainstorming`; spec-kit `/specify`, `/clarify` |
-| 2. Planning | `implementation-planning` | superpowers `writing-plans`; spec-kit `/plan`, `/tasks`, `/analyze` |
-| 3. TDD | `tdd-loop` | superpowers `test-driven-development`, `subagent-driven-development`, `executing-plans` |
-| 4. Review | `code-review` | superpowers `requesting-code-review`, `receiving-code-review`; [Google eng-practices](https://google.github.io/eng-practices/review/) |
+| 2. Planning | `implementation-planning` | superpowers `writing-plans`; spec-kit `/plan`, `/tasks`, `/analyze`; ponytail smallest complete design |
+| 3. TDD | `tdd-loop` | superpowers `test-driven-development`, `subagent-driven-development`, `executing-plans`; [ponytail](https://github.com/dietrichgebert/ponytail) ladder after the red test |
+| 4. Review | `code-review` | superpowers `requesting-code-review`, `receiving-code-review`; [Google eng-practices](https://google.github.io/eng-practices/review/); ponytail "necessary code" check |
 | 4. Security | `security-review` | [anthropics/claude-code-security-review](https://github.com/anthropics/claude-code-security-review); [OWASP Top 10](https://owasp.org/Top10/), [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/) |
-| Bugs | `systematic-debugging` | superpowers `systematic-debugging`, `root-cause-tracing` |
+| Bugs | `systematic-debugging` | superpowers `systematic-debugging`, `root-cause-tracing`; one fix in the shared code |
 | All | `verification-before-completion` | superpowers `verification-before-completion` |
