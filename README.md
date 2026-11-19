@@ -45,6 +45,28 @@ Lúc plan và lúc GREEN, agent dừng ở bậc đầu tiên còn làm đủ ac
 
 Chi tiết nguồn tham khảo xem trong [CREDITS.md](CREDITS.md).
 
+### Ai làm việc gì
+
+Phiên chat đang nói với bạn là điều phối. Skill `ai-dev-workflow` chọn bước tiếp theo, hỏi bạn ở các cổng, và ghi `status.json`. Subagent nhận một brief hẹp, làm xong thì trả kết quả. Không spawn được thì phiên chính làm đúng checklist đó và ghi `mode: inline`.
+
+Một feature hoặc một bug trong `ACTIVE.json`. Task code chạy lần lượt: một `tdd-implementer`, kiểm tra xong, rồi task sau. Dấu `[P]` trong plan cũ bị bỏ qua. Hai reviewer được chạy cùng lúc vì cùng chỉ đọc. Người viết code và người review không dùng chung một chat.
+
+| Việc | Phiên chính giữ | Subagent | Brief được đưa |
+|---|---|---|---|
+| `/onboard` | Hỏi bạn xác nhận, rồi viết `context/project/` | `codebase-analyst`, chỉ đọc | Quét manifest, cây thư mục, convention, lệnh, và 3–5 màn hình UI mẫu. Không gọi Figma |
+| Spec | Hỏi đáp và viết `02-spec.md` | không có | |
+| Plan | Viết `03-plan.md` và `04-test-cases.md`, cắt task `T-xx` | `codebase-analyst` khi cần tìm feature giống để dùng lại | Đường dẫn pattern tìm được. Plan vẫn do phiên chính viết |
+| Mỗi task code | Chờ một dòng evidence, rồi mới giao task sau. Hết task mới chạy suite, lint, typecheck, build một lần | `tdd-implementer`, một task | Khối `T-xx`, các dòng TC của task đó, `structure.md`, một lệnh chạy đúng file test. Có UI thì thêm `ui-source.md` và dòng nguồn của task |
+| Docs / infra / config | Tự làm từng task và chạy check `CK-xx` | không giao `tdd-implementer` | Không có vòng test đỏ |
+| Review vòng 1 | Chạy semgrep, gitleaks, audit nếu máy có. Giữ tối đa 40 dòng trỏ vào file trong diff. Ghi `06-review.md` | `code-reviewer` và `security-reviewer` song song, chỉ đọc | Reviewer code: diff đúng phạm vi, AC, TC khớp, `structure.md`, `conventions.md`, `ui-source.md` nếu task có UI. Reviewer security: cùng diff, mục security của `tech-stack.md`, đoạn scanner |
+| Review vòng sau | Triage finding, đưa finding test được về `tdd-implementer` từng cái | cùng hai reviewer | Chỉ diff của bản sửa và id finding còn mở |
+| `/bugfix` tái hiện | Hỏi bạn, viết test fail, ghi `01-report.md` | không có | |
+| Điều tra bug | Đưa giả thuyết cho bạn, chờ đồng ý nguyên nhân | `bug-investigator`, chỉ đọc, không viết bản sửa | `01-report.md`, một dòng test fail, `structure.md` |
+| Sửa bug | Đếm lần thử, chạy suite một lần sau lần sửa cuối | `tdd-implementer` | Test tái hiện là TC đang đỏ |
+| PR và Done | `deliver-pr` rồi `verification-before-completion` | không có | |
+
+Brief của `tdd-implementer` không kèm `01-discussion.md`, phần còn lại của spec, task khác, phần còn lại của `context/project/`, hay log test các task trước. Reviewer không thấy lý do của người vừa code, và không chạy lại scanner. Reviewer mà sửa được file, hoặc ngồi cùng chat với người code, thì vòng đó ghi `isolation: degraded` và không review thêm một lượt trong cùng vòng.
+
 ### Cài đặt vào dự án
 
 Đứng trong thư mục gốc của dự án:
@@ -148,6 +170,28 @@ A team workflow for AI-assisted development with two human gates and autonomous 
 4. **TDD loop**: red, then the same five-rung ladder, then refactor, one task at a time (max 5 attempts). The approved spec and `conventions.md` win over a smaller option. The full suite, lint, typecheck, and build run once at the end of BUILD.
 5. **Review**: automated checks, then independent `code-reviewer` (spec compliance, file placement, conventions, stack best practices, test quality, necessary code) and `security-reviewer` (OWASP Top 10/ASVS, secrets, dependencies) subagents. A new dependency for a few lines, or a from-scratch replacement of something the repo already has, is a Major finding. Critical/Major findings loop back to TDD (max 3 rounds).
 6. **`/bugfix`**: reproduce with a failing test → `bug-investigator` produces ranked root-cause hypotheses → agree on the root cause with you → one fix in the shared code → loop tests until green → review.
+
+### Who does the work
+
+The chat you talk to is the orchestrator (`ai-dev-workflow`). It owns the gates, `status.json`, and the order of work. A subagent gets one narrow brief and returns. If it cannot be spawned, the same checklist runs in the parent chat with `mode: inline`.
+
+One active feature or bug. Code tasks run one `tdd-implementer` at a time; a `[P]` mark is ignored. The two reviewers may run together because both are read-only. The implementer and the reviewers do not share a chat.
+
+| Work | Parent keeps | Subagent | Brief |
+|---|---|---|---|
+| `/onboard` | Confirms with you, then writes `context/project/` | `codebase-analyst` (read-only) | Manifests, tree, conventions, commands, 3–5 reference screens. No Figma calls |
+| Spec | The dialogue and `02-spec.md` | none | |
+| Plan | `03-plan.md`, `04-test-cases.md`, task split | `codebase-analyst` only to find a similar feature | Paths to reuse. The parent still writes the plan |
+| Each code task | Waits for one evidence line, then the next task. Full suite, lint, typecheck, and build run once at the end | `tdd-implementer`, one task | That `T-xx` block, its TC rows, `structure.md`, the single-test command. Plus `ui-source.md` and the task's UI line when the task has a UI |
+| Docs / infra / config | The parent runs each `CK-xx` | not `tdd-implementer` | No red/green loop |
+| Review round 1 | Runs semgrep, gitleaks, and the dependency audit when installed (at most 40 lines that name a file in the diff). Writes `06-review.md` | `code-reviewer` and `security-reviewer`, in parallel, read-only | Code: scoped diff, ACs, matching TCs, `structure.md`, `conventions.md`, `ui-source.md` when a task has a UI. Security: the same diff, the security section of `tech-stack.md`, the scanner excerpt |
+| Later review rounds | Triage. Each testable Critical/Major goes back to `tdd-implementer` as one mini-task | the same two reviewers | Fix diff and the open finding ids only |
+| Bug report and reproduce | Questions, failing test, `01-report.md` | none | |
+| Bug investigation | Presents hypotheses and waits for your agreement | `bug-investigator` (read-only, no fix) | `01-report.md`, the one-line failure, `structure.md` |
+| Bug fix | Counts attempts, runs the suite once after the last edit | `tdd-implementer` | The reproduction test as the failing TC |
+| PR and done | `deliver-pr`, then `verification-before-completion` | none | |
+
+The implementer brief omits `01-discussion.md`, the rest of the spec, other tasks, the rest of `context/project/`, and earlier test logs. Reviewers do not see the implementer's reasoning and do not re-run scanners. A reviewer that can edit files, or that shares the implementer's chat, is recorded as `isolation: degraded` for that round, and that round is not repeated.
 
 Install from the project root, then run `/onboard`:
 

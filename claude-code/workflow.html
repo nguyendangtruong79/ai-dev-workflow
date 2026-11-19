@@ -222,9 +222,67 @@
   .map td:first-child { font-weight: 600; }
   .map td:nth-child(2) code { display: inline-block; white-space: nowrap; }
   .map td:nth-child(3) { overflow-wrap: anywhere; }
+  .org { margin: 4px 0 8px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; }
+  .org-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+  .pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1.15fr);
+    align-items: stretch;
+  }
+  .stem { position: relative; }
+  .stem::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e4dccf;
+    transform: translateX(-50%);
+  }
+  .stem.has-branch::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background: #e4dccf;
+  }
+  .node {
+    margin: 7px 0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    background: #fffdf8;
+  }
+  .node b { display: block; font-family: Georgia, serif; font-size: 16px; font-weight: 600; }
+  .node span { display: block; color: var(--muted); margin-top: 2px; }
+  .node.read { background: var(--check-bg); border-color: #c3d7e6; }
+  .node.write { background: var(--auto-bg); border-color: #b7d8c8; }
+  .node.wait { background: var(--you-bg); border-color: #efd3b0; }
+  .twins { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-self: center; }
+  .lane-label {
+    margin: 16px 0 4px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .loop-back {
+    margin: 0 0 8px 0;
+    padding: 8px 12px;
+    border: 1px dashed #ecc3be;
+    border-radius: 12px;
+    background: var(--loop-bg);
+    color: var(--loop);
+  }
   @media (max-width: 860px) {
     .roles, .layout, .lower { grid-template-columns: 1fr; }
     .panel { position: static; }
+    .pair { grid-template-columns: 1fr; }
+    .stem { display: none; }
+    .twins { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -431,6 +489,87 @@
     </article>
   </section>
 
+  <section class="card" style="margin-top:18px" id="who">
+    <h2>Chia việc cho agent</h2>
+    <p class="hint">Đọc từ trên xuống. Cột trái là phiên chat với bạn. Nhánh sang phải là subagent, chỉ lúc được giao.</p>
+    <div class="org-legend">
+      <span class="tag"><i class="dot" style="background:#1c1915"></i> Phiên chính</span>
+      <span class="tag check"><i class="dot"></i> Subagent chỉ đọc</span>
+      <span class="tag auto"><i class="dot"></i> Subagent được viết code</span>
+      <span class="tag you"><i class="dot"></i> Dừng chờ bạn</span>
+    </div>
+    <div class="org" aria-label="Sơ đồ chia việc">
+      <p class="lane-label">Feature</p>
+      <div class="pair">
+        <div class="node wait"><b>Bạn</b><span>Yêu cầu, rồi duyệt spec, plan, rủi ro</span></div>
+        <div class="stem"></div>
+        <div></div>
+      </div>
+      <div class="pair">
+        <div class="node"><b>Phiên chính</b><span>Chọn bước, giữ cổng và status.json</span></div>
+        <div class="stem"></div>
+        <div></div>
+      </div>
+      <div class="pair">
+        <div class="node"><b>Onboard</b><span>Bạn xác nhận xong thì viết context/project/</span></div>
+        <div class="stem has-branch"></div>
+        <div class="node read"><b>codebase-analyst</b><span>Quét repo, chỉ đọc. Không gọi Figma</span></div>
+      </div>
+      <div class="pair">
+        <div class="node"><b>Spec</b><span>Hỏi bạn, viết 02-spec.md</span></div>
+        <div class="stem"></div>
+        <div class="node"><b>Tự làm</b><span>Không có subagent</span></div>
+      </div>
+      <div class="pair">
+        <div class="node"><b>Plan</b><span>Cắt T-xx theo hàng. Bỏ làm song song</span></div>
+        <div class="stem has-branch"></div>
+        <div class="node read"><b>codebase-analyst</b><span>Chỉ khi cần tìm feature giống để dùng lại</span></div>
+      </div>
+      <div class="pair">
+        <div class="node"><b>T-01, rồi T-02…</b><span>Một task xong, có evidence, mới tới task sau</span></div>
+        <div class="stem has-branch"></div>
+        <div class="node write"><b>tdd-implementer</b><span>Một task: khối T-xx, TC của task, structure.md, lệnh test một file. Có UI thì thêm ui-source.md</span></div>
+      </div>
+      <div class="pair">
+        <div class="node"><b>Hết Build</b><span>Suite, lint, typecheck, build một lần</span></div>
+        <div class="stem"></div>
+        <div class="node"><b>Tự làm</b><span>Implementer không chạy full suite</span></div>
+      </div>
+      <div class="pair">
+        <div class="node"><b>Review</b><span>Chạy scanner, ghi 06-review.md</span></div>
+        <div class="stem has-branch"></div>
+        <div class="twins">
+          <div class="node read"><b>code-reviewer</b><span>Diff, AC, luật dự án</span></div>
+          <div class="node read"><b>security-reviewer</b><span>Cùng diff, mục security, đoạn scanner</span></div>
+        </div>
+      </div>
+      <p class="loop-back">Critical hoặc Major quay lại <b>tdd-implementer</b>, từng finding một, tối đa 3 vòng. Vòng sau hai reviewer chỉ nhận diff bản sửa.</p>
+      <div class="pair">
+        <div class="node"><b>PR và Done</b><span>Mở PR, đối chiếu evidence, nói với bạn</span></div>
+        <div class="stem"></div>
+        <div class="node"><b>Tự làm</b><span>Không có subagent</span></div>
+      </div>
+
+      <p class="lane-label">Bug</p>
+      <div class="pair">
+        <div class="node"><b>Báo cáo và tái hiện</b><span>Hỏi bạn, viết test đang đỏ</span></div>
+        <div class="stem"></div>
+        <div class="node"><b>Tự làm</b><span>Chưa giao subagent</span></div>
+      </div>
+      <div class="pair">
+        <div class="node wait"><b>Bạn duyệt nguyên nhân</b><span>Đồng ý rồi mới được sửa</span></div>
+        <div class="stem has-branch"></div>
+        <div class="node read"><b>bug-investigator</b><span>Chỉ đọc. Brief: báo cáo, một dòng test fail, structure.md</span></div>
+      </div>
+      <div class="pair">
+        <div class="node"><b>Sửa bug</b><span>Một lần ở chỗ dùng chung. Tối đa 3 lần</span></div>
+        <div class="stem has-branch"></div>
+        <div class="node write"><b>tdd-implementer</b><span>Test tái hiện là TC đang đỏ. Rồi vào Review và PR ở trên</span></div>
+      </div>
+    </div>
+    <p class="hint">Brief người code không gồm nhật ký thảo luận, cả spec, task khác, hay log test cũ. Hai reviewer chạy cùng lúc và chỉ đọc. Reviewer sửa được file, hoặc ngồi cùng chat người code, thì vòng đó ghi <code>isolation: degraded</code>. Không spawn được thì phiên chính làm đúng checklist đó và ghi <code>mode: inline</code>.</p>
+  </section>
+
   <section class="card" style="margin-top:18px">
     <h2>Sổ trên đĩa</h2>
     <p class="hint"><code>status.json</code> là bản đúng. <code>STATUS.md</code> chỉ là bản cho người đọc. Hai file lệch nhau thì tin file json.</p>
@@ -458,7 +597,7 @@ const feature = [
     rows: [
       ["Lệnh", "/onboard"],
       ["Skill", "project-onboarding"],
-      ["Ai làm", "Subagent codebase-analyst, chỉ đọc. Không sửa file. Không gọi Figma."],
+      ["Ai làm", "Phiên chính hỏi bạn rồi mới viết file. Quét repo giao codebase-analyst, chỉ đọc. Không gọi Figma, không sửa file."],
       ["Tạo ra", "context/project/tech-stack.md, structure.md, conventions.md, commands.md, ui-source.md"],
       ["Nguồn UI", "figma nếu Figma Dev Mode MCP đã kết nối và bạn đưa URL file. codebase nếu không có Figma mà repo có UI. none nếu dự án không có giao diện. Có cả hai thì mode vẫn là figma, nút và khung lấy từ repo."],
       ["Dừng khi", "Claude tóm tắt stack, chỗ đặt file, lệnh test, và mode UI, rồi chờ bạn xác nhận."],
@@ -473,6 +612,7 @@ const feature = [
     summary: "Chưa viết code, chưa viết plan. Claude hỏi cho đủ để viết một spec mà test có thể bám vào.",
     rows: [
       ["Lệnh", "/feature <yêu cầu>. Trống thì Claude hỏi lại."],
+      ["Ai giữ", "Phiên chính. Bước này không có subagent. Hỏi bạn và viết spec."],
       ["Skill", "requirement-analysis"],
       ["Việc làm", "Tạo thư mục feature, nhánh feat/<id>, trỏ ACTIVE.json vào đó. Nhắc lại yêu cầu. Hỏi những câu không phụ thuộc nhau trong một tin, tối đa 5 câu."],
       ["Tạo ra", "01-discussion.md và 02-spec.md, cùng status.json, STATUS.md"],
@@ -501,6 +641,7 @@ const feature = [
     summary: "Spec đã duyệt được cắt thành task ngắn. Mỗi yêu cầu AC có ít nhất một test TC hoặc một check CK. Mỗi hành vi dừng ở bậc đầu tiên còn làm đủ: code sẵn, thư viện chuẩn, dependency đang cài, rồi mới code mới.",
     rows: [
       ["Lệnh", "/plan, hoặc tự chạy sau Gate 1 khi bạn đang trong /feature."],
+      ["Ai giữ", "Phiên chính viết plan và test case. codebase-analyst chỉ được gọi khi cần tìm feature giống để dùng lại."],
       ["Skill", "implementation-planning"],
       ["Chọn loại việc", "workType: code, docs, infra, hoặc config. Code thì TDD. Ba loại kia dùng check, không bịa unit test."],
       ["Tạo ra", "03-plan.md và 04-test-cases.md. Task đánh số T-xx, làm lần lượt. Task đụng UI ghi node-id hoặc đường dẫn mẫu, và component repo sẽ dùng. Không chép pixel."],
@@ -529,7 +670,7 @@ const feature = [
     summary: "Với code: mỗi task là đỏ, rồi thang năm bậc, rồi dọn. Test đỏ viết trước. Spec đã duyệt và conventions.md thắng bậc ngắn hơn. Subagent tdd-implementer chỉ nhận một task, các dòng test của task đó, structure.md, và một lệnh chạy đúng file test.",
     rows: [
       ["Skill", "tdd-loop"],
-      ["Subagent", "tdd-implementer. Không spawn được thì Claude làm inline."],
+      ["Subagent", "tdd-implementer, một task một lượt. Brief chỉ có khối T-xx, TC của task, structure.md, lệnh test một file, và ui-source.md khi task có UI. Không kèm discussion, cả spec, task khác, hay log test cũ. Không spawn được thì phiên chính làm inline. Docs, infra, config ở lại phiên chính và chạy CK-xx."],
       ["Một task", "RED: test phải fail đúng lý do. GREEN: năm bậc, từ code sẵn tới code tối thiểu, tối đa 5 lần. Trước markup UI: đọc node Figma qua MCP đã kết nối, hoặc mở file mẫu. Đoạn code MCP sinh ra chỉ để đọc. Không đọc được nguồn thì dừng. REFACTOR: theo conventions.md, test vẫn xanh."],
       ["Rủi ro mới", "Migration, API gãy, dependency, phân quyền, secret mà plan chưa duyệt: dừng, gates.risk = pending, chờ bạn."],
       ["Hết task", "Chạy suite, lint, typecheck, build một lần. Rồi phase = REVIEW và mở review ngay."],
@@ -543,7 +684,7 @@ const feature = [
     summary: "Chỉ xem diff từ diffBase, và chỉ những file có tên trong plan cùng implementation log. Finding Critical hoặc Major thì quay lại Build để sửa, tối đa 3 vòng.",
     rows: [
       ["Skill", "code-review, bên trong có security-review"],
-      ["Subagent", "code-reviewer và security-reviewer chạy song song, chỉ Read / Grep / Glob. Không sửa file."],
+      ["Subagent", "code-reviewer và security-reviewer chạy song song, chỉ đọc, chat riêng với người code. Vòng 1: reviewer code nhận diff, AC, TC, structure.md, conventions.md, ui-source.md nếu có UI. Reviewer security nhận cùng diff, mục security của tech-stack.md, và tối đa 40 dòng scanner do phiên chính chạy. Vòng sau chỉ nhận diff bản sửa và finding còn mở. Sửa từng finding Critical/Major bằng tdd-implementer."],
       ["Tạo ra", "06-review.md"],
       ["Vòng sau", "Chỉ gửi diff của bản sửa và các finding còn mở. Không gửi lại cả feature."],
       ["Code thừa", "Major nếu dựng lại thứ repo đã có, thêm dependency vì vài dòng, pattern mới trái conventions.md, hoặc UI lệch ui-source.md (dán code Figma sinh ra, hoặc tự nghĩ nút khi đã có mẫu)."],
@@ -558,6 +699,7 @@ const feature = [
     eyebrow: "Phase 5 · tự chạy",
     summary: "Đẩy nhánh, mở hoặc cập nhật PR. Không merge trừ khi bạn yêu cầu. CI fail thì chưa được Done.",
     rows: [
+      ["Ai giữ", "Phiên chính. Không có subagent."],
       ["Skill", "deliver-pr"],
       ["Làm", "git push -u origin HEAD, rồi gh pr create hoặc pr edit. Body ngắn: link spec hoặc báo cáo bug, evidence một dòng, minor còn lại."],
       ["Ghi", "prUrl vào status.json. Có CI thì ghi evidence kind ci."],
@@ -600,6 +742,7 @@ const bug = [
     eyebrow: "Bug · phase 1 tiếp",
     summary: "Không tái hiện được thì chưa được sửa. Thu thêm log hoặc dữ liệu từ bạn.",
     rows: [
+      ["Ai giữ", "Phiên chính viết test fail. Chưa giao subagent."],
       ["Việc", "Viết test ở mức thấp nhất vẫn lộ bug. Chạy và xác nhận fail đúng lý do đã báo."],
       ["Evidence", "Ghi một dòng, kind bug, có exit code."],
       ["Chưa reproduce", "Dừng. Không đoán rồi vá."],
@@ -612,7 +755,7 @@ const bug = [
     eyebrow: "Bug · phase 2",
     summary: "Subagent bug-investigator chỉ tìm nguyên nhân. Không viết bản sửa.",
     rows: [
-      ["Subagent", "bug-investigator, chỉ đọc, cộng lệnh đọc và test để lấy bằng chứng."],
+      ["Subagent", "bug-investigator, chỉ đọc, không viết bản sửa. Brief là 01-report.md, một dòng test fail, và structure.md. Trả 1–3 giả thuyết. Phiên chính đem giả thuyết hỏi bạn."],
       ["Cách", "Trace giá trị hỏng đi lên call chain. So với chỗ code tương tự đang chạy đúng. Xem git log của file nghi ngờ."],
       ["Tạo ra", "02-investigation.md: bằng chứng và 1–3 giả thuyết, xếp hạng."],
       ["ai-dev.js", "Không gọi. Bước này chỉ đọc và viết 02-investigation.md."]
